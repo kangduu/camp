@@ -1,5 +1,5 @@
 ---
-title: 数据结构与算法
+title: Algorithm
 icon: tabler:arrow-rotary-straight
 ---
 
@@ -7,6 +7,7 @@ icon: tabler:arrow-rotary-straight
 
 ## 学习文档
 
+- [Hello Algo](https://www.hello-algo.com/)
 - [Algorithm Visualizer](https://algorithm-visualizer.org/)
 - [Visual go](https://visualgo.net/zh)
 - [LeetCode](https://leetcode.cn/)

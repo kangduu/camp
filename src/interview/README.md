@@ -1,21 +1,22 @@
 ---
-title: 笔面试
+title: Interview
 index: false
 icon: tabler:file-pencil
 ---
 
-### GitHub Issues
+<!-- ### GitHub Issues -->
 
 <RedDiv>
-    <ol>
-        <li v-for="issue in issues" :key="issue.id">
-            <a :href="issue.html_url" target="_blank">{{ issue.title }}</a>
-        </li>
-    </ol>
+    <div v-for="issue in issues" :key="issue.id">
+        <h3 :id="issue.title" tabindex="-1">
+            <a class="header-anchor" :href="`#${issue.title}`" aria-hidden="true">#</a> {{ issue.title }}
+        </h3>
+        <pre style="max-width: 100%; overflow: hidden; text-wrap: wrap; background: #eee;">{{ issue.body }}</pre>
+    </div> 
 </RedDiv>
 
 <script setup>
-    import { h, ref, onMounted } from 'vue'
+    import { h, ref, onMounted } from 'vue';
     const RedDiv = (_, ctx) =>
     h('div',{ class:'issues' },ctx.slots.default())
 

@@ -1,5 +1,5 @@
 ---
-title: "随笔"
+title: Casual
 icon: tabler:pencil
 ---
 

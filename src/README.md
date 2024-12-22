@@ -1,7 +1,7 @@
 ---
 home: true
 icon: tabler:home-filled
-title: 首页
+title: Home
 heroImage: /assets/coding.gif
 heroImageDark: /assets/home.gif
 # layout: BlogHome
@@ -23,15 +23,15 @@ actions:
     type: primary
 
 features:
-  - title: Nest
-    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
-    icon: logos:nestjs
-    link: /nest
+  - title: JavaScript
+    details: JavaScript相关知识点。如分时函数、高阶函数、惰性加载（不重复判断）、JavaScript循环机制（浏览器）等
+    icon: fa6-brands:square-js
+    link: /javascript
 
-  - title: Next
-    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
-    icon: logos:nextjs-icon
-    link: /next
+  - title: Browser
+    details: Browser相关知识点。如本地缓存、性能测试等
+    icon: fa-brands:chrome
+    link: /browser
 
   - title: TypeScript
     details: TypeScript 是一种强类型的编程语言，基于 JavaScript 构建，无论项目规模如何，都能为你提供更强大的开发工具
@@ -47,6 +47,16 @@ features:
     details: 用于构建 Web 和原生交互界面的库
     icon: logos:react
     link: /react
+
+  - title: Nest
+    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
+    icon: logos:nestjs
+    link: /nest
+
+  - title: Next
+    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
+    icon: logos:nextjs-icon
+    link: /next
 
   - title: Git
     details: 一个分布式版本控制软件
@@ -66,15 +76,19 @@ features:
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
 
-### 微信开发
+### WeChat Development
 
 - [jsSDK | 微信开发文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html)
 - [微信开发官方文档](https://developers.weixin.qq.com/doc/)
 
-### 站点图标库
+### Local Site Icon Library
 
 - [Fontawesome Free](https://fontawesome.com/search?q=home&o=r&m=free)
 - [Iconify](https://icon-sets.iconify.design/)
+
+### Tutorial Docs
+
+- [Markdown](https://markdown.com.cn/)
 
 ### 特别说明
 
