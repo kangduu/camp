@@ -23,15 +23,15 @@ actions:
     type: primary
 
 features:
-  - title: Nest
-    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
-    icon: logos:nestjs
-    link: /nest
+  - title: JavaScript
+    details: JavaScript相关知识点。如分时函数、高阶函数、惰性加载（不重复判断）、JavaScript循环机制（浏览器）等
+    icon: fa6-brands:square-js
+    link: /javascript
 
-  - title: Next
-    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
-    icon: logos:nextjs-icon
-    link: /next
+  - title: Browser
+    details: Browser相关知识点。如本地缓存、性能测试等
+    icon: fa-brands:chrome
+    link: /browser
 
   - title: TypeScript
     details: TypeScript 是一种强类型的编程语言，基于 JavaScript 构建，无论项目规模如何，都能为你提供更强大的开发工具
@@ -47,6 +47,16 @@ features:
     details: 用于构建 Web 和原生交互界面的库
     icon: logos:react
     link: /react
+
+  - title: Nest
+    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
+    icon: logos:nestjs
+    link: /nest
+
+  - title: Next
+    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
+    icon: logos:nextjs-icon
+    link: /next
 
   - title: Git
     details: 一个分布式版本控制软件
