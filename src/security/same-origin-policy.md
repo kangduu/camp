@@ -106,8 +106,6 @@ switch (pathname) {
 
 **通过网页服务器转发网络请求到相应的后端服务器，获取相关数据，然后网页服务器再把这一数据返回给浏览器**
 
-![反向代理](http://dukangblog.top/img/reverse.proxy.jpg)
-
 如何实现反向代理？
 
 ......

@@ -9,7 +9,7 @@ category: html-css
 
 表示该元素不会显示，并且该元素的空间也不存在，可理解为已删除；
 
-visibility：hidden只是将元素隐藏，但不会改变页面布局，但也不会触发该元素已经绑定的事件；
+visibility：hidden 只是将元素隐藏，但不会改变页面布局，但也不会触发该元素已经绑定的事件；
 
 opacity：0，将元素隐藏，不会改变页面布局，但会触发该元素绑定的事件。
 
@@ -21,13 +21,11 @@ opacity：0，将元素隐藏，不会改变页面布局，但会触发该元素
 
 默认内容宽高；只能嵌套行类元素；
 
-**<u>*a标签可以嵌套img，但不得嵌套a标签；*</u>**
+**<u>_a 标签可以嵌套 img，但不得嵌套 a 标签；_</u>**
 
-**margin-top与margin-bottom无效，但margin-left与margin-right有效；**
+**margin-top 与 margin-bottom 无效，但 margin-left 与 margin-right 有效；**
 
-**padding-left与padding-right同样有效，但是padding-top与padding-bottom不会影响元素高度，会影响背景高度；**
-
-![](http://dukangblog.top/img/inline-ele.padding.jpg)
+**padding-left 与 padding-right 同样有效，但是 padding-top 与 padding-bottom 不会影响元素高度，会影响背景高度；**
 
 span、a、img、button、sup、sub、i、em、del、u（下划线）、br、b、strong、td、input、textarea、select、
 
@@ -35,9 +33,9 @@ span、a、img、button、sup、sub、i、em、del、u（下划线）、br、b�
 
 块级元素（结构性）
 
-独占一行；宽高可控；宽默认100%；
+独占一行；宽高可控；宽默认 100%；
 
-***<u>p标签不能嵌套块标签；</u>***
+**_<u>p 标签不能嵌套块标签；</u>_**
 
 address、center（地址文字）、blockquote、h1~h6、hr、p、marquee（滚动文本）、ul、ol、dl、table、form、div、pre
 
@@ -53,33 +51,33 @@ address、center（地址文字）、blockquote、h1~h6、hr、p、marquee（滚
 
 空标签（单标签）：br、hr、img、input、link、meta、base
 
-替换标签（行内标签）：img、input、textarea、select、object；（特殊的：替换元素可设宽高，类比img）
+替换标签（行内标签）：img、input、textarea、select、object；（特殊的：替换元素可设宽高，类比 img）
 
 ### [position](https://www.w3school.com.cn/cssref/pr_class_position.asp)
 
-- static 
+- static
 
-默认值，元素出现在正常的文档流中，不会受left、top、right、bottom的影响。
+默认值，元素出现在正常的文档流中，不会受 left、top、right、bottom 的影响。
 
-- relative 
+- relative
 
-**相对定位**，相对<u>自身位置</u>定位，可通过设置left、top、right、bottom的值来设置位置；
+**相对定位**，相对<u>自身位置</u>定位，可通过设置 left、top、right、bottom 的值来设置位置；
 
 并且它原本所占的空间不变，即不会影响其他元素布局；
 
 经常被用来作绝对元素的容器块。
 
-- absolute 
+- absolute
 
-**绝对定位**，相对于<u>最近的除static定位以外的元素</u>定位，若没有，则相对于html定位；
+**绝对定位**，相对于<u>最近的除 static 定位以外的元素</u>定位，若没有，则相对于 html 定位；
 
 脱离了文档流，不占据文档空间；
 
-若设置absolute，但没有设置top、left等值，其位置不变；
+若设置 absolute，但没有设置 top、left 等值，其位置不变；
 
-若设置absolute，会影响未定义宽度的块级元素，使其变为包裹元素内容的宽度。
+若设置 absolute，会影响未定义宽度的块级元素，使其变为包裹元素内容的宽度。
 
-- fixed 
+- fixed
 
 **固定定位** 相对于<u>浏览器窗口</u>定位，脱离文档流，不会随页面滚动而变化。
 
@@ -105,13 +103,13 @@ address、center（地址文字）、blockquote、h1~h6、hr、p、marquee（滚
 
   规定应该从父元素继承 visibility 属性的值。
 
-### display:none和visibility:hidden的区别
+### display:none 和 visibility:hidden 的区别
 
-- display：none 
+- display：none
 
   元素完全**不陈列出来**，**不占据空间**，
 
-  涉及到了DOM结构，产生**回流（reflow）与重绘（repaint）**
+  涉及到了 DOM 结构，产生**回流（reflow）与重绘（repaint）**
 
 - visibility：hidden
 
