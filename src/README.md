@@ -22,6 +22,11 @@ actions:
     link: /favorites/
     type: primary
 
+  - text: 关于我们
+    icon: solar:stars-bold
+    link: /intro/
+    type: primary
+
 features:
   - title: JavaScript
     details: JavaScript相关知识点。如分时函数、高阶函数、惰性加载（不重复判断）、JavaScript循环机制（浏览器）等
