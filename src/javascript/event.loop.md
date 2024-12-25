@@ -1,5 +1,5 @@
 ---
-title: 事件循环
+title: Event Loop
 category: javascript
 ---
 ## 浏览器环境下JavaScript引擎的事件循环机制

@@ -1,28 +1,25 @@
 ---
-title: JS_面向对象编程思想、封装、多态
+title: 面向对象编程思想、封装、多态
 category: javascript
 ---
 
-### 导读
-
 面向对象编程（Object-oriented programming）是一种将需求抽象成一个对象，针对这个对象分析其特征（属性）和动作（方法）。它有三大特点：继承、封装、多态。可提高程序的`重用性`、`灵活性`和`可拓展性`。实现高内聚，低耦合的目标。
 
-###### 构造函数
+## 构造函数
 
 所谓"构造函数"，其实就是一个普通函数，但是内部使用了`this`变量。对构造函数使用`new`运算符，就能生成实例，并且`this`变量会绑定在实例对象上。
 
- 
-### 封装
+## 封装
 
-##### ES5
+### ES5
 
-闭包加prototype实现
+闭包加 prototype 实现
 
 ```js
 var Car = (function () {
   // 静态私有，只创建一次
   var num = 100;
-  function check() { }
+  function check() {}
   // 构造函数
   function _car(name, price) {
     //对象安全模式
@@ -33,16 +30,16 @@ var Car = (function () {
   }
   // prototype 对象
   _car.prototype = {
-    description: 'vehicle',
+    description: "vehicle",
     display: function () {
-      return 'dispay '
-    }
-  }
-  return _car
-})()
+      return "dispay ";
+    },
+  };
+  return _car;
+})();
 ```
 
-##### ES6 class
+### ES6 class
 
 ```js
 class Car {
@@ -53,34 +50,38 @@ class Car {
   }
   //静态方法，只能通过类调用，子类只能通过super调用
   static check() {
-    return 'yes'
+    return "yes";
   }
   //实例方法
   run() {
-    return 'running'
+    return "running";
   }
   // 取值函数
   get prop() {
-    return 'getter'
+    return "getter";
   }
   // 存值函数
   set prop(value) {
-    return 'setter:' + value
+    return "setter:" + value;
   }
 }
 // 静态属性
-Car.tool = 'plant';
+Car.tool = "plant";
 ```
 
-### 继承### 多态### 参考
+### 继承
+
+### 多态
+
+### 参考
 
 - [阮一峰](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_encapsulation.html)
 - [阮一峰——非构造函数的继承](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html)
 - [阮一峰——构造函数的继承](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance.html)
 
-### 拓展阅读
+## 拓展阅读
 
-###### 面向对象编程中的一些概念
+### 面向对象编程中的一些概念
 
 `继承`、`封装`、`多态`、`动态绑定`、`消息传递` 、`静态绑定`、`方法`
 
@@ -124,30 +125,29 @@ Car.tool = 'plant';
 
 7. 方法
 
-    也称为成员函数，是指对象上的操作，作为类声明的一部分来定义。
+   也称为成员函数，是指对象上的操作，作为类声明的一部分来定义。
 
    方法定义了可以对一个对象执行那些操作。
 
-###### 面向过程编程（函数式编程）？
+### 面向过程编程（函数式编程）？
 
-###### 面向切面编程
+### 面向切面编程?
 
-### 实操
+## 实操
 
-###### 五子棋游戏
+### 五子棋游戏
 
 - 流程
   1. 开始游戏
   2. 黑子（白子）先走
-  3. 绘制canvas
+  3. 绘制 canvas
   4. 判断输赢
   5. 轮到白子（黑子）
-  6. 绘制canvas
+  6. 绘制 canvas
   7. 判断输赢
-  8. 重复2-7步
+  8. 重复 2-7 步
   9. 游戏结束了
 - 定义类
   1. 玩家对象（负责接受用户输入）
   2. 棋盘对象（棋子变化绘制）
   3. 规则对象（判断输赢）
-
