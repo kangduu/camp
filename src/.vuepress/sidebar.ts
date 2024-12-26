@@ -23,5 +23,5 @@ export default sidebar({
     "/javascript/deweight.array.md",
     "/javascript/questions.md",
   ],
-  "/typescript/": ["/typescript/", "/typescript/infer.md","/typescript/satisfies-as.md"],
+  "/typescript/": ["/typescript/", "/typescript/cmd.md", "/typescript/infer.md", "/typescript/satisfies-as.md"],
 });
