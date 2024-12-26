@@ -43,15 +43,15 @@ features:
     icon: logos:typescript-icon
     link: /typescript
 
-  - title: Node
-    details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
-    icon: logos:nodejs-icon
-    link: /node
-
   - title: React
     details: 用于构建 Web 和原生交互界面的库
     icon: logos:react
     link: /react
+
+  - title: Node
+    details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
+    icon: logos:nodejs-icon
+    link: /node
 
   - title: Nest
     details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
@@ -80,20 +80,6 @@ features:
 
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
-
-### WeChat Development
-
-- [jsSDK | 微信开发文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html)
-- [微信开发官方文档](https://developers.weixin.qq.com/doc/)
-
-### Local Site Icon Library
-
-- [Fontawesome Free](https://fontawesome.com/search?q=home&o=r&m=free)
-- [Iconify](https://icon-sets.iconify.design/)
-
-### Tutorial Docs
-
-- [Markdown](https://markdown.com.cn/)
 
 ### 特别说明
 
