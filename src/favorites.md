@@ -49,13 +49,14 @@ icon: star
 
 ### Blog Site
 
+- [Stack Overflow](https://stackoverflow.com/users/24911503/k-du)
 - [简书 - IT 技术 > 前端](https://www.jianshu.com/techareas/frontend)
 - [掘金 - 前端 > 最新](https://juejin.cn/frontend?sort=newest)
 - [博客园 - 分类 > 前端开发](https://www.cnblogs.com/cate/108703/)
 - [CSDN - 前端 > 全部](https://blog.csdn.net/nav/web)
 - [SegmentFault - 思否](https://segmentfault.com/)
 
-##### personal
+### Personal
 
 - [网道 - 一个文档网站，提供互联网开发文档](https://wangdoc.com/)
 - [ES6 入门教程 - 阮一峰](https://es6.ruanyifeng.com/)
@@ -102,3 +103,17 @@ icon: star
 - [Can I Use](https://caniuse.com/)
 - [PYPL PopularitY of Programming Language](https://pypl.github.io/PYPL.html)
 - [TIOBE](https://www.tiobe.com/tiobe-index/)
+
+### WeChat Development
+
+- [jsSDK | 微信开发文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html)
+- [微信开发官方文档](https://developers.weixin.qq.com/doc/)
+
+### Local Site Icon Library
+
+- [Fontawesome Free](https://fontawesome.com/search?q=home&o=r&m=free)
+- [Iconify](https://icon-sets.iconify.design/)
+
+### Tutorial Docs
+
+- [Markdown](https://markdown.com.cn/)

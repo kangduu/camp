@@ -1,5 +1,5 @@
 ---
-title: TypeScript类型断言操作符之 satisfies 和 as
+title: 类型断言 satisfies 和 as
 index: false
 ---
 
