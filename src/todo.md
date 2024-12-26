@@ -6,7 +6,7 @@ title: 待办事项
     <ul>
         <li v-for="issue in issues" :key="issue.id">
             <a :href="issue.html_url" target="_blank">{{ issue.title }}</a>
-            <pre>{{ issue.body }}</pre>
+            <!-- <pre style="white-space; pre-wrap">{{ issue.body }}</pre> -->
         </li>
     </ul>
 
