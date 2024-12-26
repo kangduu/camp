@@ -22,10 +22,10 @@ actions:
     link: /favorites/
     type: primary
 
-  - text: 关于我们
-    icon: solar:stars-bold
-    link: /intro/
-    type: primary
+  # - text: 关于我们
+  #   icon: solar:stars-bold
+  #   link: /intro/
+  #   type: primary
 
 features:
   - title: JavaScript
@@ -68,15 +68,15 @@ features:
     icon: logos:git-icon
     link: /git
 
-  - title: Shell
-    details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
-    icon: file-icons:powershell
-    link: /shell
+  # - title: Shell
+  #   details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
+  #   icon: file-icons:powershell
+  #   link: /shell
 
-  - title: Linux
-    details: Linux是一种自由和开放源码的类UNIX操作系统
-    icon: logos:linux-tux
-    link: /linux
+  # - title: Linux
+  #   details: Linux是一种自由和开放源码的类UNIX操作系统
+  #   icon: logos:linux-tux
+  #   link: /linux
 
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
