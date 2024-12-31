@@ -24,4 +24,5 @@ export default sidebar({
     "/javascript/questions.md",
   ],
   "/typescript/": ["/typescript/", "/typescript/cmd.md", "/typescript/infer.md", "/typescript/satisfies-as.md"],
+  "/node/": ["/node/", "/node/jwt.md", "/node/json.md"],
 });
