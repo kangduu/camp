@@ -121,3 +121,10 @@ icon: star
 ### Tutorial Docs
 
 - [Markdown](https://markdown.com.cn/)
+
+### Other
+- [数据库内核月报](http://mysql.taobao.org/monthly/)  关于数据库操作的一些文章
+- [美团技术团队提供的一些文章](https://tech.meituan.com/)
+- [LibHunt](https://www.libhunt.com/) 发现很棒的开源项目 和他们的替代方案
+- [比较不同语言的语法差异](https://programming-idioms.org/about#about-block-cheatsheets)
+
