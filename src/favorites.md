@@ -91,6 +91,10 @@ icon: star
 - [正则表达式](https://ihateregex.io/)
 - [BootCND - 静态资源分发](https://www.bootcdn.cn/)
 - [UNPKG](https://unpkg.com/)
+- [Web开发路线图](https://github.com/ccloli/developer-roadmap-zh-CN)
+- [现代Web开发魔法全书](https://github.com/dexteryy/spellbook-of-modern-webdev)
+- [成为Web全栈工程师](https://github.com/bmorelli25/Become-A-Full-Stack-Web-Developer)
+- [Awesome列表系列](https://github.com/sindresorhus/awesome)
 
 ##### Materials/Models
 
