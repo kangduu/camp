@@ -75,6 +75,7 @@ export default hopeTheme({
   encrypt: {
     config: {
       "/private/": ["kangduu1234"],
+      "/performance/":["kangduu1234"]
     },
   },
 
