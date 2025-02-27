@@ -68,15 +68,20 @@ features:
     icon: logos:git-icon
     link: /git
 
-  # - title: Shell
-  #   details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
-  #   icon: file-icons:powershell
-  #   link: /shell
+  - title: Webpack
+    details: webpack 是一个用于现代 JavaScript 应用程序的 静态模块打包工具
+    icon: logos:webpack
+    link: /webpack
 
-  # - title: Linux
-  #   details: Linux是一种自由和开放源码的类UNIX操作系统
-  #   icon: logos:linux-tux
-  #   link: /linux
+  - title: Shell
+    details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
+    icon: file-icons:powershell
+    link: /shell
+
+  - title: Linux
+    details: Linux是一种自由和开放源码的类UNIX操作系统
+    icon: logos:linux-tux
+    link: /linux
 
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
