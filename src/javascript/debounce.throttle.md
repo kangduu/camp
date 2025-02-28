@@ -234,3 +234,4 @@ function throttle(fn, delay) {
 - [节流](https://github.com/mqyqingfeng/Blog/issues/26)
 - [防抖](https://github.com/mqyqingfeng/Blog/issues/22)
 - [underscore](https://underscorejs.net/)
+- [Debounce vs Throttle: Definitive Visual Guide](https://kettanaito.com/blog/debounce-vs-throttle)
