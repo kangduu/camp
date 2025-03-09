@@ -1,4 +1,6 @@
-# 事件的节流（throttle）与防抖（debounce）
+---
+title: 事件的节流（throttle）与防抖（debounce）
+---
 
 上一节我们一起通过监听滚动事件，实现了各大网站喜闻乐见的懒加载效果。但我们提到，scroll 事件是一个非常容易被反复触发的事件。其实不止 scroll 事件，resize 事件、鼠标事件（比如 mousemove、mouseover 等）、键盘事件（keyup、keydown 等）都存在被频繁触发的风险。
 
@@ -29,7 +31,7 @@ throttle 的中心思想在于：在某段时间内，不管你触发了多少�
 function throttle(fn, interval) {
   // last为上一次触发回调的时间
   let last = 0
-  
+
   // 将throttle处理结果当作函数返回
   return function () {
       // 保留调用时的this上下文
@@ -38,7 +40,7 @@ function throttle(fn, interval) {
       let args = arguments
       // 记录本次触发回调的时间
       let now = +new Date()
-      
+
       // 判断上次触发的时间和本次触发的时间差是否小于时间间隔的阈值
       if (now - last >= interval) {
       // 如果时间间隔大于我们设定的时间间隔阈值，则执行回调
@@ -61,7 +63,7 @@ document.addEventListener('scroll', better_scroll)
 
 继续讲司机开车的故事。这次的司机比较有耐心。第一个乘客上车后，司机开始计时（比如说十分钟）。十分钟之内，如果又上来了一个乘客，司机会把计时器清零，重新开始等另一个十分钟（延迟了等待）。直到有这么一位乘客，从他上车开始，后续十分钟都没有新乘客上车，司机会认为确实没有人需要搭这趟车了，才会把车开走。
 
-我们对比 throttle 来理解 debounce：在throttle的逻辑里，“第一个人说了算”，它只为第一个乘客计时，时间到了就执行回调。而 debounce 认为，“最后一个人说了算”，debounce 会为每一个新乘客设定新的定时器。
+我们对比 throttle 来理解 debounce：在 throttle 的逻辑里，“第一个人说了算”，它只为第一个乘客计时，时间到了就执行回调。而 debounce 认为，“最后一个人说了算”，debounce 会为每一个新乘客设定新的定时器。
 
 我们基于上面的理解，一起来写一个 debounce：
 
@@ -70,7 +72,7 @@ document.addEventListener('scroll', better_scroll)
 function debounce(fn, delay) {
   // 定时器
   let timer = null
-  
+
   // 将debounce处理结果当作函数返回
   return function () {
     // 保留调用时的this上下文
@@ -100,7 +102,7 @@ document.addEventListener('scroll', better_scroll)
 
 debounce 的问题在于它“太有耐心了”。试想，如果用户的操作十分频繁——他每次都不等 debounce 设置的 delay 时间结束就进行下一次操作，于是每次 debounce 都为该用户重新生成定时器，回调函数被延迟了不计其数次。频繁的延迟会导致用户迟迟得不到响应，用户同样会产生“这个页面卡死了”的观感。
 
-为了避免弄巧成拙，我们需要借力 throttle 的思想，打造一个“有底线”的 debounce——等你可以，但我有我的原则：delay 时间内，我可以为你重新生成定时器；但只要delay的时间到了，我必须要给用户一个响应。这个 throttle 与 debounce “合体”思路，已经被很多成熟的前端库应用到了它们的加强版 throttle 函数的实现中：
+为了避免弄巧成拙，我们需要借力 throttle 的思想，打造一个“有底线”的 debounce——等你可以，但我有我的原则：delay 时间内，我可以为你重新生成定时器；但只要 delay 的时间到了，我必须要给用户一个响应。这个 throttle 与 debounce “合体”思路，已经被很多成熟的前端库应用到了它们的加强版 throttle 函数的实现中：
 
 ```
 // fn是我们需要包装的事件回调, delay是时间间隔的阈值
@@ -108,15 +110,15 @@ function throttle(fn, delay) {
   // last为上一次触发回调的时间, timer是定时器
   let last = 0, timer = null
   // 将throttle处理结果当作函数返回
-  
-  return function () { 
+
+  return function () {
     // 保留调用时的this上下文
     let context = this
     // 保留调用时传入的参数
     let args = arguments
     // 记录本次触发回调的时间
     let now = +new Date()
-    
+
     // 判断上次触发的时间和本次触发的时间差是否小于时间间隔的阈值
     if (now - last < delay) {
     // 如果时间间隔小于我们设定的时间间隔阈值，则为本次触发操作设立一个新的定时器

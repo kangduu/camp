@@ -1,4 +1,8 @@
-# 对症下药—— DOM 优化原理与基本实践
+---
+
+title: DOM 优化原理与基本实践
+
+---
 
 从本节开始，我们要关心的两大核心问题就是：“DOM 为什么这么慢”以及“如何使 DOM 变快”。
 
@@ -14,7 +18,7 @@
 
 > 把 DOM 和 JavaScript 各自想象成一个岛屿，它们之间用收费桥梁连接。——《高性能 JavaScript》
 
-JS 是很快的，在 JS 中修改 DOM 对象也是很快的。在JS的世界里，一切是简单的、迅速的。但 DOM 操作并非 JS 一个人的独舞，而是两个模块之间的协作。
+JS 是很快的，在 JS 中修改 DOM 对象也是很快的。在 JS 的世界里，一切是简单的、迅速的。但 DOM 操作并非 JS 一个人的独舞，而是两个模块之间的协作。
 
 上一节我们提到，JS 引擎和渲染引擎（浏览器内核）是独立实现的。当我们用 JS 去操作 DOM 时，本质上是 JS 引擎和渲染引擎之间进行了“跨界交流”。这个“跨界交流”的实现并不简单，它依赖了桥接接口作为“桥梁”（如下图）。
 
@@ -32,10 +36,8 @@ JS 是很快的，在 JS 中修改 DOM 对象也是很快的。在JS的世界里
 
 ![](https://user-gold-cdn.xitu.io/2018/9/29/1662558836a66620?w=644&h=321&f=png&s=27095)
 
-*   回流：当我们对 DOM 的修改引发了 DOM 几何尺寸的变化（比如修改元素的宽、高或隐藏元素等）时，浏览器需要重新计算元素的几何属性（其他元素的几何属性和位置也会因此受到影响），然后再将计算的结果绘制出来。这个过程就是回流（也叫重排）。
-    
-*   重绘：当我们对 DOM 的修改导致了样式的变化、却并未影响其几何属性（比如修改了颜色或背景色）时，浏览器不需重新计算元素的几何属性、直接为该元素绘制新的样式（跳过了上图所示的回流环节）。这个过程叫做重绘。
-    
+- 回流：当我们对 DOM 的修改引发了 DOM 几何尺寸的变化（比如修改元素的宽、高或隐藏元素等）时，浏览器需要重新计算元素的几何属性（其他元素的几何属性和位置也会因此受到影响），然后再将计算的结果绘制出来。这个过程就是回流（也叫重排）。
+- 重绘：当我们对 DOM 的修改导致了样式的变化、却并未影响其几何属性（比如修改了颜色或背景色）时，浏览器不需重新计算元素的几何属性、直接为该元素绘制新的样式（跳过了上图所示的回流环节）。这个过程叫做重绘。
 
 由此我们可以看出，**重绘不一定导致回流，回流一定会导致重绘**。硬要比较的话，回流比重绘做的事情更多，带来的开销也更大。但这两个说到底都是吃性能的，所以都不是什么善茬。我们在开发中，要从代码层面出发，尽可能把回流和重绘的次数最小化。
 
@@ -45,7 +47,7 @@ JS 是很快的，在 JS 中修改 DOM 对象也是很快的。在JS的世界里
 
 ### 减少 DOM 操作：少交“过路费”、避免过度渲染
 
-我们来看这样一个🌰，HTML 内容如下：
+我们来看这样一个 🌰，HTML 内容如下：
 
 ```
 <!DOCTYPE html>
@@ -66,9 +68,9 @@ JS 是很快的，在 JS 中修改 DOM 对象也是很快的。在JS的世界里
 此时我有一个假需求——我想往 container 元素里写 10000 句一样的话。如果我这么做：
 
 ```
-for(var count=0;count<10000;count++){ 
+for(var count=0;count<10000;count++){
   document.getElementById('container').innerHTML+='<span>我是一个小测试</span>'
-} 
+}
 
 ```
 
@@ -79,9 +81,9 @@ for(var count=0;count<10000;count++){
 ```
 // 只获取一次container
 let container = document.getElementById('container')
-for(let count=0;count<10000;count++){ 
+for(let count=0;count<10000;count++){
   container.innerHTML += '<span>我是一个小测试</span>'
-} 
+}
 
 ```
 
@@ -90,10 +92,10 @@ for(let count=0;count<10000;count++){
 ```
 let container = document.getElementById('container')
 let content = ''
-for(let count=0;count<10000;count++){ 
+for(let count=0;count<10000;count++){
   // 先对内容进行操作
   content += '<span>我是一个小测试</span>'
-} 
+}
 // 内容处理好了,最后再触发DOM的更改
 container.innerHTML = content
 
@@ -101,11 +103,11 @@ container.innerHTML = content
 
 所谓“就事论事”，就像大家所看到的：JS 层面的事情，JS 自己去处理，处理好了，再来找 DOM 打报告。
 
-事实上，考虑JS 的运行速度，比 DOM 快得多这个特性。我们减少 DOM 操作的核心思路，就是**让 JS 去给 DOM 分压**。
+事实上，考虑 JS 的运行速度，比 DOM 快得多这个特性。我们减少 DOM 操作的核心思路，就是**让 JS 去给 DOM 分压**。
 
 这个思路，在 [DOM Fragment](https://developer.mozilla.org/zh-CN/docs/Web/API/DocumentFragment) 中体现得淋漓尽致。
 
-> DocumentFragment 接口表示一个没有父级文件的最小文档对象。它被当做一个轻量版的 Document 使用，用于存储已排好版的或尚未打理好格式的XML片段。因为 DocumentFragment 不是真实 DOM 树的一部分，它的变化不会引起 DOM 树的重新渲染的操作（reflow），且不会导致性能等问题。
+> DocumentFragment 接口表示一个没有父级文件的最小文档对象。它被当做一个轻量版的 Document 使用，用于存储已排好版的或尚未打理好格式的 XML 片段。因为 DocumentFragment 不是真实 DOM 树的一部分，它的变化不会引起 DOM 树的重新渲染的操作（reflow），且不会导致性能等问题。
 
 在我们上面的例子里，字符串变量 content 就扮演着一个 DOM Fragment 的角色。其实无论字符串变量也好，DOM Fragment 也罢，它们本质上都作为脱离了真实 DOM 树的**容器**出现，用于缓存批量化的 DOM 操作。
 
