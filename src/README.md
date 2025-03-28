@@ -33,7 +33,12 @@ features:
     icon: fa6-brands:square-js
     link: /javascript
 
-  - title: Browser
+  - title: webpack
+    details: webpack 是一个用于现代 JavaScript 应用程序的 静态模块打包工具
+    icon: logos:webpack
+    link: /webpack
+
+  - title: browser
     details: Browser相关知识点。如本地缓存、性能测试等
     icon: fa-brands:chrome
     link: /browser
@@ -43,45 +48,40 @@ features:
     icon: logos:typescript-icon
     link: /typescript
 
-  - title: React
-    details: 用于构建 Web 和原生交互界面的库
-    icon: logos:react
-    link: /react
-
   - title: Node
     details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
     icon: logos:nodejs-icon
     link: /node
 
-  - title: Nest
-    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
-    icon: logos:nestjs
-    link: /nest
+  - title: react
+    details: 用于构建 Web 和原生交互界面的库
+    icon: logos:react
+    link: /react
 
-  - title: Next
-    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
-    icon: logos:nextjs-icon
-    link: /next
+  # - title: Nest
+  #   details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
+  #   icon: logos:nestjs
+  #   link: /nest
 
-  - title: Git
+  # - title: Next
+  #   details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
+  #   icon: logos:nextjs-icon
+  #   link: /next
+
+  - title: git
     details: 一个分布式版本控制软件
     icon: logos:git-icon
     link: /git
 
-  - title: Webpack
-    details: webpack 是一个用于现代 JavaScript 应用程序的 静态模块打包工具
-    icon: logos:webpack
-    link: /webpack
-
-  - title: Shell
+  - title: shell
     details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
     icon: file-icons:powershell
     link: /shell
 
-  - title: Linux
-    details: Linux是一种自由和开放源码的类UNIX操作系统
-    icon: logos:linux-tux
-    link: /linux
+  # - title: Linux
+  #   details: Linux是一种自由和开放源码的类UNIX操作系统
+  #   icon: logos:linux-tux
+  #   link: /linux
 
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
