@@ -91,6 +91,10 @@ icon: star
 - [正则表达式](https://ihateregex.io/)
 - [BootCND - 静态资源分发](https://www.bootcdn.cn/)
 - [UNPKG](https://unpkg.com/)
+- [Web开发路线图](https://github.com/ccloli/developer-roadmap-zh-CN)
+- [现代Web开发魔法全书](https://github.com/dexteryy/spellbook-of-modern-webdev)
+- [成为Web全栈工程师](https://github.com/bmorelli25/Become-A-Full-Stack-Web-Developer)
+- [Awesome列表系列](https://github.com/sindresorhus/awesome)
 
 ##### Materials/Models
 
@@ -117,3 +121,10 @@ icon: star
 ### Tutorial Docs
 
 - [Markdown](https://markdown.com.cn/)
+
+### Other
+- [数据库内核月报](http://mysql.taobao.org/monthly/)  关于数据库操作的一些文章
+- [美团技术团队提供的一些文章](https://tech.meituan.com/)
+- [LibHunt](https://www.libhunt.com/) 发现很棒的开源项目 和他们的替代方案
+- [比较不同语言的语法差异](https://programming-idioms.org/about#about-block-cheatsheets)
+
