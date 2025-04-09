@@ -48,20 +48,20 @@ features:
     icon: logos:react
     link: /react
 
-  - title: Node
-    details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
-    icon: logos:nodejs-icon
-    link: /node
+  # - title: Node
+  #   details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
+  #   icon: logos:nodejs-icon
+  #   link: /node
 
-  - title: Nest
-    details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
-    icon: logos:nestjs
-    link: /nest
+  # - title: Nest
+  #   details: Nest (NestJS) 是一个用于构建高效、可扩展的Node.js服务器端应用程序的框架
+  #   icon: logos:nestjs
+  #   link: /nest
 
-  - title: Next
-    details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
-    icon: logos:nextjs-icon
-    link: /next
+  # - title: Next
+  #   details: Next.js 是一个用于构建全栈 Web 应用程序的 React 框架
+  #   icon: logos:nextjs-icon
+  #   link: /next
 
   - title: Git
     details: 一个分布式版本控制软件
