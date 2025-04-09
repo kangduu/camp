@@ -1,4 +1,6 @@
-# 优化首屏体验——Lazy-Load 初探
+---
+title: 优化首屏体验——Lazy-Load 初探
+---
 
 首先要告诉大家的是，截止到上个章节，我们需要大家绞尽脑汁去理解的“硬核”操作基本告一段落了。从本节开始，我们会一起去实现一些必知必会、同时难度不大的常用优化手段。
 
@@ -25,12 +27,12 @@ Lazy-Load，翻译过来是“懒加载”。它是针对图片加载时机的�
 我们把代码提出来看一下：
 
 ```
-<div data-v-b2db8566="" 
-    data-v-009ea7bb="" 
-    data-v-6b46a625=""   
-    data-src="https://user-gold-cdn.xitu.io/2018/9/27/16619f449ee24252?imageView2/1/w/120/h/120/q/85/format/webp/interlace/1"    
-    class="lazy thumb thumb"    
-    style="background-image: none; background-size: cover;">  
+<div data-v-b2db8566=""
+    data-v-009ea7bb=""
+    data-v-6b46a625=""
+    data-src="https://user-gold-cdn.xitu.io/2018/9/27/16619f449ee24252?imageView2/1/w/120/h/120/q/85/format/webp/interlace/1"
+    class="lazy thumb thumb"
+    style="background-image: none; background-size: cover;">
 </div>
 
 ```
@@ -133,7 +135,7 @@ style="background-image: url(&quot;https://user-gold-cdn.xitu.io/2018/9/27/16619
 **当前可视区域的高度**， 在和现代浏览器及 IE9 以上的浏览器中，可以用 window.innerHeight 属性获取。在低版本 IE 的标准模式中，可以用 document.documentElement.clientHeight 获取，这里我们兼容两种情况：
 
 ```
-const viewHeight = window.innerHeight || document.documentElement.clientHeight 
+const viewHeight = window.innerHeight || document.documentElement.clientHeight
 
 ```
 

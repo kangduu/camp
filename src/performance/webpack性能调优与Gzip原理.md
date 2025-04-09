@@ -1,30 +1,32 @@
-# webpack 性能调优与 Gzip 原理
+---
+title: Webpack 性能调优 与 Gzip 原理
+---
 
-从本节开始，我们进入网络层面的性能优化世界。
+从本节开始，进入网络层面的性能优化世界。
 
-大家可以从第一节的示意图中看出，我们从输入 URL 到显示页面这个过程中，涉及到网络层面的，有三个主要过程：
+从第一节的示意图中看出，从输入 URL 到显示页面这个过程中，涉及到网络层面的，有三个主要过程：
 
-*   DNS 解析
-*   TCP 连接
-*   HTTP 请求/响应
+- DNS 解析
+- TCP 连接
+- HTTP 请求/响应
 
-对于 DNS 解析和 TCP 连接两个步骤，我们前端可以做的努力非常有限。相比之下，HTTP 连接这一层面的优化才是我们网络优化的核心。因此我们开门见山，抓主要矛盾，直接从 HTTP 开始讲起。
+对于 DNS 解析 和 TCP 连接 两个步骤，前端可以做的努力非常有限。相比之下，**HTTP 连接** 这一层面的优化才是网络优化的核心。因此我们开门见山，抓主要矛盾，直接从 HTTP 开始讲起。
 
 HTTP 优化有两个大的方向：
 
-*   减少请求次数
-*   减少单次请求所花费的时间
+- 减少请求次数
+- 减少单次请求所花费的时间
 
-这两个优化点直直地指向了我们日常开发中非常常见的操作——资源的压缩与合并。没错，这就是我们每天用构建工具在做的事情。而时下最主流的构建工具无疑是 webpack，所以我们这节的主要任务就是围绕业界霸主 webpack 来做文章。
+这两个优化点直直地指向了日常开发中非常常见的操作——资源的压缩与合并。
+
+没错，这就是我们每天用构建工具在做的事情。而时下最主流的构建工具无疑是 webpack，所以我们这节的主要任务就是围绕业界霸主 webpack 来做文章。
 
 ## webpack 的性能瓶颈
 
-相信每个用过 webpack 的同学都对“打包”和“压缩”这样的事情烂熟于心。这些老生常谈的特性，我更推荐大家去阅读文档。而关于 webpack 的详细操作，则推荐大家读读这本 [关于 webpack 的掘金小册](https://juejin.im/book/5a6abad5518825733c144469/section/5a6abad5518825732e2f8546#heading-2)，这里我们把注意力放在 webpack 的性能优化上。
-
 webpack 的优化瓶颈，主要是两个方面：
 
-*   webpack 的构建过程太花时间
-*   webpack 打包的结果体积太大
+- webpack 的构建过程太花时间
+- webpack 打包的结果体积太大
 
 ## webpack 优化方案
 
@@ -34,7 +36,7 @@ webpack 的优化瓶颈，主要是两个方面：
 
 babel-loader 无疑是强大的，但它也是慢的。
 
-最常见的优化方式是，<u>用 include 或 exclude 来帮我们避免不必要的转译</u> 【1】，比如 webpack 官方在介绍 babel-loader 时给出的示例：
+最常见的优化方式是，<u>用 include 或 exclude 来帮我们避免不必要的转译</u>，比如 webpack 官方在介绍 babel-loader 时给出的示例：
 
 ```js
 module: {
@@ -43,72 +45,67 @@ module: {
       test: /\.js$/,
       exclude: /(node_modules|bower_components)/,
       use: {
-        loader: 'babel-loader',
+        loader: "babel-loader",
         options: {
-          presets: ['@babel/preset-env']
-        }
-      }
-    }
-  ]
+          presets: ["@babel/preset-env"],
+        },
+      },
+    },
+  ];
 }
 ```
 
-这段代码帮我们规避了对庞大的 node\_modules 文件夹或者 bower\_components 文件夹的处理。但通过限定文件范围带来的性能提升是有限的。除此之外，如果我们<u>选择开启缓存将转译结果缓存至文件系统</u> 【2】，则至少可以将 babel-loader 的工作效率提升两倍。要做到这点，我们只需要为 loader 增加相应的参数设定：
+这段代码帮我们规避了对庞大的 node_modules 文件夹或者 bower_components 文件夹的处理。但通过限定文件范围带来的性能提升是有限的。
+
+除此之外，如果我们<u>选择开启缓存将转译结果缓存至文件系统</u>，则至少可以将 babel-loader 的工作效率提升两倍。要做到这点，我们只需要为 loader 增加相应的参数设定：
 
 ```js
-loader: 'babel-loader?cacheDirectory=true'
+loader: "babel-loader?cacheDirectory=true";
 ```
 
 以上都是在讨论针对 loader 的配置，但我们的优化范围不止是 loader 们。
 
-举个🌰，尽管我们可以在 loader 配置时通过写入 exclude 去避免 babel-loader 对不必要的文件的处理，但是考虑到这个规则仅作用于这个 loader，像一些类似 UglifyJsPlugin 的 webpack 插件在工作时依然会被这些庞大的第三方库拖累，webpack 构建速度依然会因此大打折扣。所以针对这些庞大的第三方库，我们还需要做一些额外的努力。
+举个 🌰，尽管我们可以在 loader 配置时通过写入 exclude 去避免 babel-loader 对不必要的文件的处理，但是考虑到这个规则仅作用于这个 loader，像一些类似 UglifyJsPlugin 的 webpack 插件在工作时依然会被这些庞大的第三方库拖累，webpack 构建速度依然会因此大打折扣。所以针对这些庞大的第三方库，我们还需要做一些额外的努力。
 
 #### 不要放过第三方库
 
-第三方库以 node\_modules 为代表，它们庞大得可怕，却又不可或缺。
+第三方库以 node_modules 为代表，它们庞大得可怕，却又不可或缺。
 
 处理第三方库的姿势有很多，其中，Externals 不够聪明，一些情况下会引发重复打包的问题；而 CommonsChunkPlugin 每次构建时都会重新构建一次 vendor；出于对效率的考虑，我们这里为大家推荐 **<u>DllPlugin</u>**。
 
 DllPlugin 是基于 Windows 动态链接库（dll）的思想被创作出来的。这个插件会把第三方库单独打包到一个文件中，这个文件就是一个单纯的依赖库。**这个依赖库不会跟着你的业务代码一起被重新打包，只有当依赖自身发生版本变化时才会重新打包**。
 
-<u>用 DllPlugin 处理文件</u> 【3】，要分两步走：
+<u>用 DllPlugin 处理文件</u>，要分两步走：
 
-*   基于 dll 专属的配置文件，打包 dll 库
-*   基于 webpack.config.js 文件，打包业务代码
+- 基于 dll 专属的配置文件，打包 dll 库
+- 基于 webpack.config.js 文件，打包业务代码
 
 以一个基于 React 的简单项目为例，我们的 dll 的配置文件可以编写如下：
 
 ```js
-const path = require('path')
-const webpack = require('webpack')
+const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
-    entry: {
-      // 依赖的库数组
-      vendor: [
-        'prop-types',
-        'babel-polyfill',
-        'react',
-        'react-dom',
-        'react-router-dom',
-      ]
-    },
-    output: {
-      path: path.join(__dirname, 'dist'),
-      filename: '[name].js',
-      library: '[name]_[hash]',
-    },
-    plugins: [
-      new webpack.DllPlugin({
-        // DllPlugin的name属性需要和libary保持一致
-        name: '[name]_[hash]',
-        path: path.join(__dirname, 'dist', '[name]-manifest.json'),
-        // context需要和webpack.config.js保持一致
-        context: __dirname,
-      }),
-    ],
-}
-
+  entry: {
+    // 依赖的库数组
+    vendor: ["prop-types", "babel-polyfill", "react", "react-dom", "react-router-dom"],
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "[name].js",
+    library: "[name]_[hash]",
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      // DllPlugin的name属性需要和libary保持一致
+      name: "[name]_[hash]",
+      path: path.join(__dirname, "dist", "[name]-manifest.json"),
+      // context需要和webpack.config.js保持一致
+      context: __dirname,
+    }),
+  ],
+};
 ```
 
 编写完成之后，运行这个配置文件，我们的 dist 文件夹里会出现这样两个文件：
@@ -139,36 +136,35 @@ vendor.js 不必解释，是我们第三方库打包的结果。这个多出来�
     },
     ...
   }
-}  
+}
 
 ```
 
 随后，我们只需在 webpack.config.js 里针对 dll 稍作配置：
 
 ```js
-const path = require('path');
-const webpack = require('webpack')
+const path = require("path");
+const webpack = require("webpack");
 module.exports = {
-  mode: 'production',
+  mode: "production",
   // 编译入口
   entry: {
-    main: './src/index.js'
+    main: "./src/index.js",
   },
   // 目标文件
   output: {
-    path: path.join(__dirname, 'dist/'),
-    filename: '[name].js'
+    path: path.join(__dirname, "dist/"),
+    filename: "[name].js",
   },
   // dll相关配置
   plugins: [
     new webpack.DllReferencePlugin({
       context: __dirname,
       // manifest就是我们第一步中打包出来的json文件
-      manifest: require('./dist/vendor-manifest.json'),
-    })
-  ]
-}
-
+      manifest: require("./dist/vendor-manifest.json"),
+    }),
+  ],
+};
 ```
 
 一次基于 dll 的 webpack 构建过程优化，便大功告成了！
@@ -214,15 +210,13 @@ module.exports = {
 
 #### 文件结构可视化，找出导致体积过大的原因
 
-这里为大家介绍一个非常好用的包组成可视化工具——[webpack-bundle-analyzer](https://www.npmjs.com/package/webpack-bundle-analyzer)，配置方法和普通的 plugin 无异，它会以矩形树图的形式将包内各个模块的大小和依赖关系呈现出来，格局如官方所提供这张图所示：
-
-![](https://user-gold-cdn.xitu.io/2018/9/14/165d838010b20a4c?w=908&h=547&f=gif&s=3663774)
+这里为大家介绍一个非常好用的包组成可视化工具——[webpack-bundle-analyzer](https://www.npmjs.com/package/webpack-bundle-analyzer)，配置方法和普通的 plugin 无异，它会以矩形树图的形式将包内各个模块的大小和依赖关系呈现出来 。
 
 在使用时，我们只需要将其以插件的形式引入：
 
 ```
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
- 
+
 module.exports = {
   plugins: [
     new BundleAnalyzerPlugin()
@@ -245,11 +239,11 @@ module.exports = {
 
 意思是基于 import/export 语法，Tree-Shaking 可以在编译的过程中获悉哪些模块并没有真正被使用，这些没用的代码，在最后打包的时候会被去除。
 
-举个🌰，假设我的主干文件（入口文件）是这么写的：
+举个 🌰，假设我的主干文件（入口文件）是这么写的：
 
 ```
 import { page1, page2 } from './pages'
-    
+
 // show是事先定义好的函数，大家理解它的功能是展示页面即可
 show(page1)
 
@@ -287,7 +281,7 @@ module.exports = {
      // 开启缓存
      cache: true,
      compress: {
-       // 删除所有的console语句    
+       // 删除所有的console语句
        drop_console: true,
        // 把使用多次的静态值自动定义为变量
        reduce_vars: true,
@@ -306,16 +300,15 @@ module.exports = {
 
 有心的同学会注意到，这段手动引入 UglifyJsPlugin 的代码其实是 webpack3 的用法，webpack4 现在已经默认使用 uglifyjs-webpack-plugin 对代码做压缩了——在 webpack4 中，我们是通过配置 optimization.minimize 与 optimization.minimizer 来自定义压缩相关的操作的。
 
-这里也引出了我们学习性能优化的一个核心的理念——用什么工具，怎么用，并不是我们这本小册的重点，因为所有的工具都存在用法迭代的问题。但现在大家知道了在打包的过程中做一些如上文所述的“手脚”可以实现打包结果的最优化，那下次大家再去执行打包操作，会不会对这个操作更加留心，从而自己去寻找彼时操作的具体实现方案呢？我最希望大家掌握的技能就是，先在脑海中留下“这个xx操作是对的，是有用的”，在日后的实践中，可以基于这个认知去寻找把正确的操作落地的具体方案。
+这里也引出了我们学习性能优化的一个核心的理念——用什么工具，怎么用，因为所有的工具都存在用法迭代的问题。但现在大家知道了在打包的过程中做一些如上文所述的“手脚”可以实现打包结果的最优化，那下次大家再去执行打包操作，会不会对这个操作更加留心，从而自己去寻找彼时操作的具体实现方案呢？我最希望大家掌握的技能就是，先在脑海中留下“这个 xx 操作是对的，是有用的”，在日后的实践中，可以基于这个认知去寻找把正确的操作落地的具体方案。
 
 #### 按需加载
 
 大家想象这样一个场景。我现在用 React 构建一个单页应用，用 React-Router 来控制路由，十个路由对应了十个页面，这十个页面都不简单。如果我把这整个项目打一个包，用户打开我的网站时，会发生什么？有很大机率会卡死，对不对？更好的做法肯定是先给用户展示主页，其它页面等请求到了再加载。当然这个情况也比较极端，但却能很好地引出按需加载的思想：
 
-*   一次不加载完所有的文件内容，只加载此刻需要用到的那部分（会提前做拆分）
+- 一次不加载完所有的文件内容，只加载此刻需要用到的那部分（会提前做拆分）
 
-*   当需要更多内容时，再对用到的内容进行即时加载
-
+- 当需要更多内容时，再对用到的内容进行即时加载
 
 好，既然说到这十个 Router 了，我们就拿其中一个开刀，假设我这个 Router 对应的组件叫做 BugComponent，来看看我们如何利用 webpack 做到该组件的按需加载。
 
@@ -375,9 +368,7 @@ require.ensure(dependencies, callback, chunkName)
 
 这也应了我之前跟大家强调那段话，工具永远在迭代，唯有掌握核心思想，才可以真正做到举一反三——唯“心”不破！
 
-## 彩蛋：Gzip 压缩原理
-
-恭喜大家迎来了本小册的第一个彩蛋。彩蛋为选学内容，以原理性知识为主。意在拓宽大家的技术视野，加深大家对优化相关知识的理解。
+## Gzip 压缩原理
 
 前面说了不少 webpack 的故事，目的还是帮大家更好地实现压缩和合并。说到压缩，可不只是构建工具的专利。我们日常开发中，其实还有一个便宜又好用的压缩操作：开启 Gzip。
 
@@ -385,7 +376,6 @@ require.ensure(dependencies, callback, chunkName)
 
 ```
 accept-encoding:gzip
-
 ```
 
 相信很多同学对 Gzip 也是了解到这里。之所以为大家开这个彩蛋性的小节，绝不是出于炫技要来给大家展示一下 Gzip 的压缩算法，而是想和大家聊一个和我们前端关系更密切的话题：HTTP 压缩。

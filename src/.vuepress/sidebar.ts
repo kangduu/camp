@@ -41,7 +41,6 @@ export default sidebar({
     "/performance/事件的节流（throttle）与防抖（debounce）.md",
     "/performance/Performance、LightHouse与性能API.md",
     "/performance/CDN的缓存与回源机制解析.md",
-    "/performance/希望以此为你的起点.md",
   ],
-  "/webpack/": ["/webpack/", "/webpack/base.md", "/webpack/interview.md","/webpack/loader.md","/webpack/plugin.md","/webpack/source-map.md"],
+  "/webpack/": ["/webpack/", "/webpack/asset.management.md", "/webpack/output.management.md", "/webpack/development.md", "/webpack/code.splitting.md", "/webpack/hmr.md", "/webpack/tree.shaking.md"],
 });
