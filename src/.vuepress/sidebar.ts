@@ -42,4 +42,5 @@ export default sidebar({
     "/performance/Performance、LightHouse与性能API.md",
     "/performance/CDN的缓存与回源机制解析.md",
   ],
+  "/webpack/": ["/webpack/", "/webpack/asset.management.md", "/webpack/output.management.md", "/webpack/development.md", "/webpack/code.splitting.md", "/webpack/hmr.md", "/webpack/tree.shaking.md"],
 });
