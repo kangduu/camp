@@ -27,7 +27,7 @@ export default sidebar({
   "/node/": ["/node/", "/node/jwt.md", "/node/json.md"],
   "/performance": [
     "/performance",
-    "/performance/知识体系与小册格局.md",
+    "/performance/开篇.md",
     "/performance/webpack性能调优与Gzip原理.md",
     "/performance/图片优化之质量与性能的博弈.md",
     "/performance/览器缓存机制介绍与缓存策略剖析.md",
