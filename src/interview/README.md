@@ -7,12 +7,14 @@ icon: tabler:file-pencil
 <!-- ### GitHub Issues -->
 
 <RedDiv>
-    <div v-for="issue in issues" :key="issue.id">
-        <h3 :id="issue.title" tabindex="-1">
-            <a class="header-anchor" :href="`#${issue.title}`" aria-hidden="true">#</a> {{ issue.title }}
-        </h3>
-        <pre style="max-width: 100%; overflow: hidden; text-wrap: wrap; background: #eee;">{{ issue.body }}</pre>
-    </div> 
+<ul>
+    <li v-for="issue in issues" :key="issue.id">
+        <!-- <h3 :id="issue.title" tabindex="-1"> -->
+            <a :href="issue.html_url" target="_blank"> {{ issue.title }} </a> 
+        <!-- </h3> -->
+        <!-- <pre style="max-width: 100%; overflow: hidden; text-wrap: wrap; background: #eee;">{{ issue.body }}</pre> -->
+    </li> 
+</ul>
 </RedDiv>
 
 <script setup>
@@ -30,7 +32,7 @@ icon: tabler:file-pencil
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            
+            console.log(data)
             issues.value = data;
         } catch (error) {
             console.error('Error fetching issues:', error);
