@@ -3,6 +3,7 @@ import { sidebar } from "vuepress-theme-hope";
 export default sidebar({
   "/javascript/": [
     "/javascript/",
+    "/javascript/web-worker.md",
     "/javascript/precompile.md",
     "/javascript/async.md",
     "/javascript/currying.md",
