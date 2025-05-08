@@ -4,7 +4,7 @@ title: 聊天上下文
 
 ### 1. 滚动边界确定
 
-- [JavaScript 判断元素是否在可视区域的方法](https://github.com/kangduu/camps/issues/65)
+- [JavaScript 判断元素是否在可视区域的方法](https://github.com/kangduu/camp/issues/65)
 - [Intersection Observer API](https://developer.mozilla.org/zh-CN/docs/Web/API/Intersection_Observer_API)
 
 - Observer API 实现
