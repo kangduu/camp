@@ -27,12 +27,11 @@ icon: tabler:file-pencil
     const getIssues = async () => {
         try {
             // https://api.github.com/repos/{owner}/{repository}/issues?milestone=&state=&assignee=&creator=&mentioned=&labels=&sort=&direction=&since=&per_page=&page=
-            const response = await fetch('https://api.github.com/repos/kangduu/camps/issues?state=open&sort=updated');
+            const response = await fetch('https://api.github.com/repos/kangduu/camp/issues?state=open&sort=updated');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            console.log(data)
             issues.value = data;
         } catch (error) {
             console.error('Error fetching issues:', error);

@@ -22,7 +22,7 @@ title: 待办事项
 
     const getIssues = async () => {
         try {
-            const response = await fetch('https://api.github.com/repos/kangduu/camps/issues?labels=todoist&state=open&sort=updated');
+            const response = await fetch('https://api.github.com/repos/kangduu/camp/issues?labels=todoist&state=open&sort=updated');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
