@@ -1,5 +1,5 @@
 ---
-title: git reset 操作指南
+title: git reset
 ---
 
 重置当前 HEAD 到指定的状态
