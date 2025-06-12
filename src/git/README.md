@@ -3,7 +3,10 @@ title: git base
 icon: logos:git-icon
 ---
 
+- [git-scm](https://git-scm.com/book/zh/v2)
 - [Learning Git Branching](https://learngitbranching.js.org/?locale=zh_CN)
+- [廖雪峰的 Git 教程](https://liaoxuefeng.com/books/git/introduction/index.html)
+
 - [图解常用的 Git 指令含义](https://mp.weixin.qq.com/s/oKMdlo6jsIcMcZW8nzoAUg)
 
 ## git commit type recommend
