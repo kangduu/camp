@@ -1,5 +1,5 @@
 ---
-title: Performance
+title: Perf
 icon: ion:barbell-sharp
 ---
 

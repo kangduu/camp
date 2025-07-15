@@ -2,7 +2,10 @@
 title: git reset
 ---
 
-重置当前 HEAD 到指定的状态
+**Reset current HEAD to the specified state**
+[git-scm / gti-reset](https://git-scm.com/docs/git-reset)
+
+---
 
 ## 关于在`Windows`系统的`cmd`命令行执行出现 `More?`的说明
 
