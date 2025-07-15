@@ -47,7 +47,7 @@ const webpack = ["/webpack/asset.management.md", "/webpack/output.management.md"
 
 const nodejs = ["/node/jwt.md", "/node/json.md"];
 
-const git = ["/git/git-reset.md"];
+const git = ["/git/git-reset.md", "/git/git-stash.md", "/git/git-remote.md"];
 
 export default sidebar({
   "/js/": js,
