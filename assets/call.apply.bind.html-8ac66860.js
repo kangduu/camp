@@ -1,0 +1,1 @@
+import{_ as l}from"./plugin-vue_export-helper-c27b6911.js";import{o as t,c as a,a as n}from"./app-415740f4.js";const o={};function r(c,e){return t(),a("div",null,[...e[0]||(e[0]=[n("p",null,"待编写...",-1)])])}const p=l(o,[["render",r],["__file","call.apply.bind.html.vue"]]);export{p as default};
