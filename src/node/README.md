@@ -3,22 +3,10 @@ title: Node.js
 icon: logos:nodejs-icon
 ---
 
-## npm common command
+1. Node.js 安装与使用 ([node](https://nodejs.org/zh-cn), [npm](https://docs.npmjs.com/), [npx](https://docs.npmjs.com/cli/v11/commands/npx))
+2. CommonJS & ES Module 模块化
+3. 文件系统模块（fs）
+4. 路径模块（path）
+5. 异步编程：回调、Promise、async/await
+6. 事件循环（event loop）与 EventEmitter
 
-### `npm view` 查看注册表信息
-
-> **aliases** `info` `show` `v`
-
-查看所有版本信息，并以 json 格式输出
-
-```bash
-npm view react versions --json
-```
-
-查看指定版本注册信息
-
-```bash
-npm view react@19.0.0
-```
-
-- [npm-view](https://docs.npmjs.com/cli/v10/commands/npm-view)

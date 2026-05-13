@@ -20,10 +20,9 @@ jobs:
           # 如果你文档需要 Git 子模块，取消注释下一行
           # submodules: true
 
+      # 版本由仓库根目录 package.json 的 packageManager 字段唯一指定（避免与 action 的 version 冲突）
       - name: 安装 pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4

@@ -45,7 +45,7 @@ const performance = [
 
 const webpack = ["/webpack/asset.management.md", "/webpack/output.management.md", "/webpack/development.md", "/webpack/code.splitting.md", "/webpack/hmr.md", "/webpack/tree.shaking.md"];
 
-const nodejs = ["/node/jwt.md", "/node/json.md"];
+const nodejs = ["/node/execute.md", "/node/npm.md", "/node/nvm.md", "/node/jwt.md", "/node/json.md"];
 
 const git = ["/git/git-reset.md", "/git/git-stash.md", "/git/git-remote.md"];
 
