@@ -4,13 +4,15 @@
   "description": "front-end development interview or study.",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.27.0",
   "scripts": {
     "docs:build": "vuepress build src",
     "docs:clean-dev": "vuepress dev src --clean-cache",
     "docs:dev": "vuepress dev src",
-    "docs:update-package": "yarn dlx vp-update"
+    "docs:update-package": "pnpm dlx vp-update"
   },
   "devDependencies": {
+    "@vuepress/bundler-vite": "2.0.0-beta.67",
     "@vuepress/client": "2.0.0-beta.67",
     "vue": "^3.3.4",
     "vuepress": "2.0.0-beta.67",
