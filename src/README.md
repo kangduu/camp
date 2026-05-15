@@ -68,10 +68,15 @@ features:
   #   icon: logos:nextjs-icon
   #   link: /next
 
-  - title: git
-    details: 一个分布式版本控制软件
-    icon: logos:git-icon
-    link: /git
+  # - title: git
+  #   details: 一个分布式版本控制软件
+  #   icon: logos:git-icon
+  #   link: /git
+
+  - title: AI Engineer
+    details: AI 辅助编码与实践：协作工作流、提示模板与 Cursor 模式速查
+    icon: logos:ai-logo
+    link: /ai
 
   # - title: shell
   #   details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行
