@@ -31,7 +31,7 @@ features:
   - title: JavaScript
     details: JavaScript相关知识点。如分时函数、高阶函数、惰性加载（不重复判断）、JavaScript循环机制（浏览器）等
     icon: fa6-brands:square-js
-    link: /js
+    link: /js/README.md
 
   # - title: webpack
   # details: webpack 是一个用于现代 JavaScript 应用程序的 静态模块打包工具
@@ -46,12 +46,12 @@ features:
   - title: TypeScript
     details: TypeScript 是一种强类型的编程语言，基于 JavaScript 构建，无论项目规模如何，都能为你提供更强大的开发工具
     icon: logos:typescript-icon
-    link: /ts
+    link: /ts/README.md
 
   - title: Node
     details: Node.js 是一个免费、开源、跨平台的 JavaScript 运行时环境，可让开发人员创建服务器、Web 应用程序、命令行工具和脚本。
     icon: logos:nodejs-icon
-    link: /node
+    link: /node/README.md
 
   # - title: react
   #   details: 用于构建 Web 和原生交互界面的库
