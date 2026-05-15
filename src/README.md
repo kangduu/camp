@@ -91,14 +91,17 @@ features:
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
 
----
-
 ### :smile:Link Up ~ ~ ~
 
 1. [Developer Roadmaps](https://roadmap.sh/)
 2. [React TypeScript Cheatsheets](https://react-typescript-cheatsheet.netlify.app/)
 
----
+### 本站所使用的资源
+
+- [VuePress](https://vuepress.vuejs.org/)
+- [vuepress-theme-hope](https://theme-hope.vuejs.press/)
+- [Iconify](https://icon-sets.iconify.design/)
+- [FontAwesome](https://fontawesome.com/)
 
 ### :warning:特别说明
 

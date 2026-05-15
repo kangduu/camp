@@ -3,10 +3,14 @@ import { navbar } from "vuepress-theme-hope";
 export default navbar([
   "/",
   "/ai/",
-  "/performance",
+  // "/performance",
   "/interview/",
-  "/algorithm/",
-  "/blog/",
+  // "/algorithm/",
+  // "/blog/",
   // "/security/",
   // "/private/",
+  // {
+  //   text: "博客",
+  //   link: "/blog/",
+  // }
 ]);
