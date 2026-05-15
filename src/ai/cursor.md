@@ -1,6 +1,6 @@
 ---
-title: Cursor 使用完全指南
-icon: logos:cursor
+title: Cursor使用完全指南
+icon: bxl:cursor-ai
 ---
 
 ## Ask / Debug / Plan / Agent 模式的区别
