@@ -24,6 +24,7 @@
     "@vue/repl": "^4.7.2",
     "@vuepress/bundler-vite": "2.0.0-rc.30",
     "@vuepress/client": "^2.0.0-rc.30",
+    "@vuepress/plugin-revealjs": "2.0.0-rc.130",
     "echarts": "^6.0.0",
     "flowchart.ts": "^3.0.1",
     "mermaid": "^11.15.0",

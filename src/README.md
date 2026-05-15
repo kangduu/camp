@@ -75,8 +75,8 @@ features:
 
   - title: AI Engineer
     details: AI 辅助编码与实践：协作工作流、提示模板与 Cursor 模式速查
-    icon: logos:ai-logo
-    link: /ai
+    icon: mingcute:ai-fill
+    link: /ai/README.md
 
   # - title: shell
   #   details: Shell 是用户与操作系统交互的桥梁，它接受用户输入的命令并执行

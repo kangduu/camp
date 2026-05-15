@@ -1,6 +1,6 @@
 ---
 title: AI
-icon: mingcute:ai-line
+icon: mingcute:ai-fill
 ---
 
 # AI 使用完全指南
