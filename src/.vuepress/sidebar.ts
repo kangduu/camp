@@ -49,6 +49,13 @@ const nodejs = ["/node/execute.md", "/node/npm.md", "/node/nvm.md", "/node/jwt.m
 
 const git = ["/git/git-reset.md", "/git/git-stash.md", "/git/git-remote.md"];
 
+const ai = [
+  "/ai/",
+  "/ai/coding-workflow.md",
+  "/ai/prompt-patterns.md",
+  "/ai/cursor.md",
+];
+
 export default sidebar({
   "/js/": js,
   "/ts/": ts,
@@ -56,4 +63,5 @@ export default sidebar({
   "/performance": performance,
   "/webpack/": webpack,
   "/git/": git,
+  "/ai/": ai,
 });

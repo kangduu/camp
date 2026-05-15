@@ -273,7 +273,7 @@ console.log(singleModel("MAX_NUM")); //1000
 
 ### 其它应用
 
-1. [函数柯里化](./柯里化.md)
+1. [函数柯里化](./currying.md)
 2. [防抖/节流](./debounce.throttle.md)
 3. [分时函数](#分时函数)
 4. [惰性加载](#惰性加载-不重复判断)

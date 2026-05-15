@@ -8,7 +8,6 @@ category: Vue
 ### beforeCreate
 
 - `可以`
-
   - 能获取`$parent`,`$root`
   - 接收父组件传递的`监听器` （$on），并作相应处理；【子组件 beforeCreate 在父组件 beforeMount 后】
 
@@ -20,7 +19,6 @@ category: Vue
 ### created
 
 - `可以`
-
   - 发送 Ajax 请求（你可以在这里做这件事了）
   - 获取父组件注入的数据（父组件注册，所有子组件[包括孙子]都可获取）[provide / inject](https://vuejs.bootcss.com/api/#provide-inject)
   - ​
@@ -94,21 +92,21 @@ category: Vue
 
 ### 加载渲染过程
 
-$父 beforeCreate => 父 create => 父 beforeMount => 子 beforeCreate => 子 create => 子 beforeMount => 子 mounted => 父 mounted $
+父 beforeCreate => 父 create => 父 beforeMount => 子 beforeCreate => 子 create => 子 beforeMount => 子 mounted => 父 mounted
 
 ---
 
 ### 子组件更新过程
 
-$父 beforeUpdate => 子 beforeUpdate => 子 updated => 父 updated $
+父 beforeUpdate => 子 beforeUpdate => 子 updated => 父 updated
 
 ### 父组件更新过程
 
-$父beforeUpdate => 子beforeUpdate$
+父beforeUpdate => 子beforeUpdate
 
 ### 销毁过程
 
-$父beforeDestroy => 子beforeDestroy => 子destroyed => 父destroyed$
+父beforeDestroy => 子beforeDestroy => 子destroyed => 父destroyed
 
 ## 特别注意
 

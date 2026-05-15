@@ -5,7 +5,7 @@ category: React
 
 ### React 18
 
-- [Automatic batching 自动批处理](./[性能优化]React.flushSync处理异步批量setState导致多次更新.md)
+- [Automatic batching 自动批处理](./【性能优化】React.flushSync与AutomaticBatching.md)
 - New APIS
 
   - concurrent features
