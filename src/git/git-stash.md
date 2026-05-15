@@ -1,5 +1,6 @@
 ---
 title: git stash
+icon: codicon:git-stash
 ---
 
 **Stash the changes in a dirty working directory away**
@@ -13,10 +14,10 @@ title: git stash
 
 | 命令                              | 作用                                                                           | 示例                                       |
 | :-------------------------------- | :----------------------------------------------------------------------------- | :----------------------------------------- |
-| **`git stash`**                   | 暂存所有已追踪文件的修改，并恢复工作区到干净状态。                             | `git stash`                                |
-| **`git stash push`**              | `git stash` 的现代版本，功能更强大，推荐使用。                                 | `git stash push`                           |
+| **`git stash`**                   | 暂存所有**已追踪文件**的修改，并恢复工作区到干净状态。                             | `git stash`                                |
+| **`git stash push`**              | 同 `git stash`，功能更强大，推荐使用。                                 | `git stash push`                           |
 | **`git stash push -m "message"`** | 在暂存时添加一个描述信息，方便以后识别。                                       | `git stash push -m "refactor login logic"` |
-| **`git stash list`**              | 列出所有保存的暂存记录，最新的在最上面，编号为 `stash@{0}`。                   | `git stash list`                           |
+| **`git stash list`**              | 列出所有保存的暂存记录，最新的在最上面（栈结构），编号为 `stash@{0}`。                   | `git stash list`                           |
 | **`git stash apply`**             | 应用指定的暂存到当前工作区，**但不会从暂存列表中删除**。                       | `git stash apply stash@{1}`                |
 | **`git stash pop`**               | 应用指定的暂存到当前工作区，**并会从暂存列表中删除**。通常用于恢复最新的暂存。 | `git stash pop`                            |
 | **`git stash drop`**              | 从暂存列表中删除指定的暂存。                                                   | `git stash drop stash@{0}`                 |
@@ -55,7 +56,7 @@ title: git stash
 
 ### 🤔 常见问题与恢复
 
-1.  **`git stash` 和 `git stash apply` 的区别？**
+1.  **`git stash pop` 和 `git stash apply` 的区别？**
     主要区别在于是否应用后自动删除暂存记录。如果想保留暂存以备用，或者不确定应用后是否顺利，用 `git stash apply`；确认不再需要此暂存时，用 `git stash pop`。
 
 2.  **`git stash pop` 后代码丢失或冲突？**
@@ -89,4 +90,4 @@ title: git stash
 4.  **理解冲突**：应用暂存本质上是在尝试“合并”代码，所以和合并分支一样，可能会产生代码冲突。正确地解决冲突是使用 `stash` 的必备技能。
 5.  **留意 `push` 时的参数位置**：当 `git stash push` 带有文件和 `-m` 消息时，需要用 `--` 分隔，例如 `git stash push -m "message" -- src/file.js`。
 
-总而言之，`git stash` 是一个在复杂开发流程中非常实用的命令，帮你安全、高效地处理好紧急任务。如果你想在自己的项目中实际体验一下这些命令，我们推荐直接使用我们正在开发的**AnyDev协作开发平台**，快速创建一个代码仓库来练手哦。
+总而言之，`git stash` 是一个在复杂开发流程中非常实用的命令，帮你安全、高效地处理好紧急任务。
