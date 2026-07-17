@@ -1,209 +1,144 @@
 ---
-title: 函数柯里化（Curring）
+title: 函数柯里化
 category: javascript
 ---
 
-`柯里化也属于一种高阶函数`
+## 一句话结论
 
-> 把接受多个参数的函数变换成接受一个单一参数(最初函数的第一个参数)的函数，并且返回接受余下的参数且返回结果的新函数的技术。——维基百科
+柯里化是把接收多个参数的函数，转换成可以分多次接收参数的函数。它常用于参数复用、延迟执行、函数组合和生成更具体的业务函数。
 
-自我理解（柯里化函数会接收一些参数，然后不会立即求值，而是继续返回一个新函数，将传入的参数通过闭包的形式保存，等到被真正求值的时候，再一次性把所有传入的参数进行求值）
+## 为什么需要它
 
-结合代码看看下面的这个实例吧
+有些函数的部分参数在一组调用中是固定的，例如校验规则、请求基础路径、日志标签。把固定参数提前保存起来，可以减少重复传参，也能让函数表达更贴近业务语义。
 
-```javascript
-// 普通的add函数
-function add(x, y) {
-  return x + y;
+- 场景：生成特定校验函数；预置请求配置；封装事件处理器；实现偏函数。
+- 不处理会怎样：同样参数反复传递，调用处噪声变多，复用点不清晰。
+
+## 核心概念
+
+| 概念 | 含义 | 备注 |
+| ---- | ---- | ---- |
+| 柯里化 | 多参数函数变成连续单参数函数 | `fn(a, b)` -> `fn(a)(b)` |
+| 偏函数 | 预先固定一部分参数 | 不一定每次只接收一个参数 |
+| 闭包 | 保存已经传入的参数 | 柯里化的基础 |
+| `fn.length` | 函数声明的形参数量 | 可用于判断是否收集完参数 |
+
+## 原理
+
+柯里化依赖闭包保存已经收到的参数。当参数数量达到原函数需要的数量时，再一次性调用原函数。
+
+```js
+function add(a, b, c) {
+  return a + b + c;
 }
-console.log(add(3, 4)); // 7
 
-// 柯里化后
-function curryingAdd(x) {
-  return function (y) {
-    return x + y;
-  };
-}
-console.log(curryingAdd(3)(4)); // 7
-```
-
-做点改进啦
-
-```javascript
-function currying(fn) {
-  // 将除了第一个参数的后续所有参数存入args数组
-  let args = Array.prototype.slice.call(arguments, 1);
-  return function () {
-    // 拼接所有的参数于newArgs数组
-    let newArgs = args.concat(Array.prototype.slice.call(arguments));
-    return fn.apply(null, newArgs);
-  };
-}
-function add(x, y) {
-  return x + y;
-}
-let res = currying(add, 1);
-console.log(res(3)); // 4
-```
-
-好吧，这些知识理论基础，你只需要知道原理即可。
-
-## 柯里化的性能
-
-1. 存取 arguments 对象通常要比存取命名参数要慢一点
-2. 一些老版本的浏览器在 arguments.length 的实现上是相当慢的
-3. 使用 fn.apply( … ) 和 fn.call( … )通常比直接调用 fn( … ) 稍微慢点
-4. 创建大量嵌套作用域和闭包函数会带来花销，无论是在内存还是速度上
-
-## 柯里化的应用
-
-### 参数复用
-
-参数复用，就是将都需要使用的参数或者方法使用柯里化处理后闭包返回。
-
-```javascript
-// 之前是这么写的
-let regNum = /\d+/g; // 至少有一个数字
-let regStr = /[a-z]+/g; // 至少有一个字符小写的 a 到 z
-console.log(regNum.test("ddd")); // false
-console.log(regStr.test("8837773a")); // true
-
-// 或者你会这样写
-function check(regexp, text) {
-  return regexp.test(text);
-}
-console.log(check(/\d+/g, "dhkfh3")); // true
-console.log(check(/[a-z]+/g, "333332s3")); // true
-
-// but now  这样写
-function curryingCheck(reg) {
-  return function (text) {
-    return reg.test(text);
-  };
-}
-const hasNumber = curryingCheck(/\d+/g);
-const hasLetter = curryingCheck(/[a-z]+/g);
-
-console.log(hasNumber("ddddddddd")); // false
-console.log(hasLetter("ddddddddd")); // true
-```
-
-这里不管是检测是否有数字或是否有小写字母 a-z，都需要使用同一个方法`reg.test()`，这就是共同点，这对这样的例子，我们可以提前写好条件，封装后，在需要时直接调用对应的方法即可。
-
-### 提前确认
-
-> 提前明确走哪个方向，避免每次都进行判断
-
-```javascript
-{
-    // ....
-    if (document.addEventListener) {
-        document.getElementById('ele').addEventListener()
-    } else {
-        document.getElementById('ele').attachEvent()
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
     }
-}
 
-//之前每次添加事件都是需要这样的判断
---------------------------------------------------------
-
-const on = (function () {
-  if (document.addEventListener) {
-    return function (element, event, handler) {
-      if (element, event, handler) {
-        element.addEventListener(event, handler, false)
-      }
-    }
-  } else {
-    return function (element, event, handler) {
-      if (element, event, handler) {
-        element.attachEvent('on' + event, handler)
-      }
-    }
-  }
-})()
-on(document.getElementById('box'), 'click', function () { })
-```
-
-这个示例，很好的避免了我们在做兼容性处理时，经常需要在添加事件前做兼容处理的判断（重复判断，代码冗余）。
-
-### js 中的`bind`方法
-
-```javascript
-Function.prototype.bind = function (context) {
-  let _this = this;
-  let args = Array.prototype.slice.call(arguments, 1);
-  return function () {
-    return _this.apply(context, args);
-  };
-};
-```
-
-bind 方法应用了`curring` `apply` `闭包`
-
-## 经典面试题
-
-### 问题 1 ：实现一个 add 方法，使计算结果能够满足以下预期
-
-> add(1)(2)(3) = 6;
-> add(1,2,3)(4) = 10;
-> add(1)(2)(3)(4)(5)= 15
-
-```javascript
-function add() {
-  let args = Array.prototype.slice.call(arguments);
-
-  let collect = function () {
-    args.push(...arguments);
-    return collect;
-  };
-
-  //重新 Function.prototype.toString()
-  collect.toString = function () {
-    return args.reduce(function (x, y) {
-      return x + y;
-    });
-  };
-
-  return collect;
-}
-```
-
-当一个对象转换成原始值时，先查看对象是否有 valueOf 方法，如果有并且返回值是一个原始值，那么直接返回这个值，否则没有 valueOf 或返回的不是原始值，那么调用 toString 方法，返回字符串表示
-
-### 问题 2 ：实现 sum(1)(2)(3) 返回结果是 1,2,3 之和
-
-```javascript
-function sum(x) {
-  return function (y) {
-    return function (z) {
-      return x + y + z;
+    return function collect(...nextArgs) {
+      return curried.apply(this, [...args, ...nextArgs]);
     };
   };
 }
+
+const curriedAdd = curry(add);
+
+console.log(curriedAdd(1)(2)(3)); // 6
+console.log(curriedAdd(1, 2)(3)); // 6
 ```
 
-### 问题 3 ：实现一个 curry 函数，将普通函数进行柯里化
+## 实现
 
-```javascript
-function curry(fn, args = []) {
-  return function () {
-    let res = [...args, ...arguments];
-    if (res.length < fn.length) {
-      return curry.call(this, fn, res);
-    } else {
-      return fn.apply(this, res);
-    }
+### 参数复用
+
+```js
+function createRegexTester(regexp) {
+  return function test(text) {
+    return regexp.test(text);
   };
 }
-function sum(a, b, c) {
-  return a + b + c;
-}
-let newSum = curry(sum);
-console.log(sum(1, 2, 3));
-console.log(newSum(1)(2)(3));
+
+const hasNumber = createRegexTester(/\d/);
+const hasLowercase = createRegexTester(/[a-z]/);
+
+console.log(hasNumber("abc")); // false
+console.log(hasLowercase("abc")); // true
 ```
 
-`fn.length` 函数定义时的参数个数（形参）
+### 通用 curry
 
-`arguments.length` 函数执行时的参数个数（实参）
+```js
+function curry(fn, arity = fn.length) {
+  function curried(...args) {
+    if (args.length >= arity) {
+      return fn.apply(this, args);
+    }
+
+    return function next(...nextArgs) {
+      return curried.apply(this, [...args, ...nextArgs]);
+    };
+  }
+
+  return curried;
+}
+```
+
+这个实现保留了调用时的 `this`，支持一次传多个参数，但不支持占位符和无限参数。
+
+### 无限参数求和
+
+```js
+function add(...args) {
+  function collect(...nextArgs) {
+    if (nextArgs.length === 0) {
+      return args.reduce((sum, item) => sum + item, 0);
+    }
+
+    args.push(...nextArgs);
+    return collect;
+  }
+
+  return collect;
+}
+
+console.log(add(1)(2)(3)()); // 6
+console.log(add(1, 2)(3, 4)()); // 10
+```
+
+面试中也常见通过重写 `valueOf` / `toString` 实现隐式求值，但工程代码更建议显式调用结束函数，避免可读性问题。
+
+## 边界与常见坑
+
+- **柯里化不是性能优化工具**：它会创建额外闭包，过度使用会增加内存和调用成本。
+- **`fn.length` 不包含剩余参数和默认参数之后的参数**：复杂函数不要完全依赖它。
+- **参数顺序很重要**：适合把稳定参数放前面，变化参数放后面。
+- **隐式求值不利于维护**：依赖 `toString` / `valueOf` 的写法更像面试技巧。
+- **箭头函数没有自己的 `this`**：需要动态 `this` 时不要随意改成箭头函数。
+
+## 工程取舍
+
+- 适合：参数复用、函数工厂、声明式工具函数。
+- 谨慎：业务流程复杂、团队不熟悉函数式写法、调试链路过长。
+- 应换方案：简单预置参数可直接写包装函数；复杂依赖注入可用配置对象或类。
+
+## 面试 / 自测
+
+1. 柯里化和偏函数有什么区别？
+2. 为什么柯里化需要闭包？
+3. 如何实现 `sum(1)(2)(3)`？
+4. `fn.length` 在什么情况下不可靠？
+5. 柯里化有哪些工程上的成本？
+
+## 相关文章
+
+- [高阶函数](./higher-order-function.md)
+- [call、apply 和 bind](./call.apply.bind.md)
+- [惰性函数](./lazy-function.md)
+
+## 参考
+
+- [MDN: Closures](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Closures)
+- [MDN: Function.length](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/length)

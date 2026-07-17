@@ -3,100 +3,113 @@ title: parseInt、parseFloat
 category: javascript
 ---
 
-# parseInt
+## 一句话结论
 
-### 一句话描述
+`parseInt()` 和 `parseFloat()` 都会先把参数转成字符串，再从左到右解析能识别的数字片段。它们适合从带单位的字符串中提取数字，不适合做严格数值校验。
 
-> **parseInt(string, radix) ** 将一个字符串 string 转换为 radix 进制的整数， radix 为介于 2-36 之间的数。
+## 为什么需要它
 
-### grammar
+业务中常见 `"12px"`、`"3.14rem"`、`"100%"` 这类带单位或混合字符的输入，需要提取开头的数字部分。
 
-> ```javascript
-> parseInt(string, radix); // 注意，第一个参数为字符串
-> ```
+- 场景：解析 CSS 值、处理用户输入、读取 URL 参数中的数字。
+- 不处理会怎样：把宽松解析当成严格校验，导致 `"12abc"` 被错误接受为 `12`。
 
-### params
+## 核心概念
 
-`string`
+| 方法 | 解析目标 | 第二参数 | 停止条件 |
+| ---- | ---- | ---- | ---- |
+| `parseInt(value, radix)` | 整数 | 进制，建议显式传入 | 遇到非当前进制合法字符 |
+| `parseFloat(value)` | 浮点数 | 无 | 遇到不属于浮点数字面量的字符 |
+| `Number(value)` | 完整数值转换 | 无 | 整个值必须能转换 |
 
-​ 被解析的值。如果不是一个字符串参数，将被（使用 **toString** 方法）转换为字符串。字符串开头的空白符将会被忽略。
+## 原理
 
-`radix`
+`parseInt` 和 `parseFloat` 的解析是宽松的：先忽略开头空白，再尽可能读取前缀中的合法数字字符，遇到不合法字符就停止。
 
-​ 一个介于 2 和 36 之间的**整数**，表示字符串（string）的**基数**（进制数）。默认使用十进制。
-
-- [x] 你应该总是赋予 radix 有效值（[2-36]）。
-
-### return
-
-​ 解析后的整数值。若被解析的参数 string 无法被转化成数值类型，则返回`NaN` 。
-
-### 特殊情况
-
-在基数为 `undefined`，或者基数为 ` 0` 或者`没有指定`的情况下，JavaScript 作如下处理：
-
-- 如果字符串 `string` 以"0x"或者"0X"开头, 则基数是 16 (16 进制).
-- 如果字符串 `string` 以"0"开头, 基数是 8（八进制）或者 10（十进制），那么具体是哪个基数由实现环境决定。ECMAScript 5 规定使用 10，但是并不是所有的浏览器都遵循这个规定。因此，**永远都要明确给出 radix 参数的值**。
-- 如果字符串 `string` 以其它任何值开头，则基数是 10 (十进制)。
-
-### 意外的结果
-
-```javascript
-// 返回 NaN
-parseInt("546", 2); //NaN 除了“0、1”外，其它数字都不是有效二进制数字
-
-//你可能觉得很不可思议
-parseInt(4.7, 10); // 4
-parseInt(4.7 * 1e22, 10); // 4 、 非常大的数值变成 4
-parseInt(0.00000000000434, 10); // 4 、 非常小的数值变成 4
+```js
+console.log(parseInt("12px", 10)); // 12
+console.log(parseFloat("3.14rem")); // 3.14
+console.log(Number("12px")); // NaN
 ```
 
-### 严格解析整数
+这也是它们和 `Number()` 的核心区别：`Number()` 要求整体可转换，解析函数只要求前缀可解析。
 
-```javascript
-function filterInt(value) {
-  if (/^(\-|\+)?([0-9]+|Infinity)$/.test(value)) return Number(value);
-  return NaN;
+## 实现
+
+### parseInt
+
+```js
+console.log(parseInt("10", 10)); // 10
+console.log(parseInt("10", 2)); // 2
+console.log(parseInt("ff", 16)); // 255
+console.log(parseInt("546", 2)); // NaN
+```
+
+工程代码里应显式传入 `radix`，通常是 `10`。虽然现代规范已经明确了默认行为，但显式进制能减少阅读成本和历史环境差异。
+
+### parseFloat
+
+```js
+console.log(parseFloat("3.14px")); // 3.14
+console.log(parseFloat("  -0.5rem")); // -0.5
+console.log(parseFloat("1.2.3")); // 1.2
+console.log(parseFloat("abc")); // NaN
+```
+
+`parseFloat` 可以解析 `Infinity`，也会在第二个小数点、非法字符处停止。
+
+### 严格整数校验
+
+如果目标是校验「整个字符串必须是整数」，不要只用 `parseInt`。
+
+```js
+function parseStrictInteger(value) {
+  if (typeof value !== "string" && typeof value !== "number") {
+    return NaN;
+  }
+
+  const text = String(value).trim();
+
+  if (!/^[+-]?\d+$/.test(text)) {
+    return NaN;
+  }
+
+  return Number(text);
 }
+
+console.log(parseStrictInteger("12")); // 12
+console.log(parseStrictInteger("12px")); // NaN
 ```
 
-### 参考
+## 边界与常见坑
 
-[parseInt](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/parseInt) 重点阅读理解**描述部分**
+- **`parseInt(4.7 * 1e22, 10)` 可能得到 4**：参数先转字符串，极大数可能变成科学计数法字符串。
+- **`parseInt("08")` 历史上有八进制争议**：现代环境一般按十进制，但仍建议显式传 `10`。
+- **`parseInt("1.9", 10)` 得到 `1`**：它只解析整数部分，不是四舍五入。
+- **`parseFloat("1.2.3")` 得到 `1.2`**：宽松解析会在第二个小数点停止。
+- **BigInt 会丢精度**：`parseFloat(900719925474099267n)` 会转成 Number，不能保留大整数精度。
 
-# parseFloat
+## 工程取舍
 
-### 一句话描述
+- 适合：从带单位字符串前缀提取数字。
+- 谨慎：用户表单、金额、数量、权限参数等需要严格校验的场景。
+- 应换方案：严格转换用 `Number()` 加正则；大整数用 `BigInt()`；复杂格式用专门解析器。
 
-> **parseFloat() **函数解析一个参数（**必要时先转换为字符串**）并返回一个浮点数。
+## 面试 / 自测
 
-### grammar
+1. `parseInt("12px", 10)` 和 `Number("12px")` 分别返回什么？
+2. 为什么建议 `parseInt` 总是传第二个参数？
+3. `parseFloat("1.2.3")` 的结果是什么？
+4. 为什么 `parseInt(0.00000000000434, 10)` 可能得到 4？
+5. 如何严格判断一个字符串是否为整数？
 
-> ```javascript
-> parseFloat(string);
-> ```
+## 相关文章
 
-### params
+- [正则表达式](./reg-exp.md)
+- [数组方法](./array.md)
 
-`string`
+## 参考
 
-​ 需要被解析成为**浮点数**的值。
-
-### return
-
-​ 给定值被解析成浮点数。
-
-​ 如果给定值不能被转换成数值，则会返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)。
-
-### 你应该知道
-
-​ parseFloat 是一个全局函数，它不属于任何对象。
-
-### 特殊解析情况
-
-- 如果 `parseFloat` 在解析过程中 遇到了正号（`+`）、负号（`-` ）、数字（`0`-`9`）、小数点（`.`）、或者科学记数法中的指数（e 或 E）<u>以外的字符</u>，则它会`忽略该字符以及之后的所有字符，返回当前已经解析到的浮点数`。
-- <u>第二个小数点</u>的出现也会使解析停止（在这之前的字符都会被解析）。
-- 参数首位和末位的<u>空白</u>符会被忽略。
-- 如果参数字符串的<u>第一个字符不能被解析成为数字</u>,`则` `parseFloat` 返回 `NaN`。
-- `parseFloat` 也可以解析并返回 [`Infinity`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Infinity)。
-- `parseFloat`解析 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt) 为 [`Numbers`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number), 丢失精度。因为末位 `n` 字符被丢弃。
+- [MDN: parseInt](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/parseInt)
+- [MDN: parseFloat](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/parseFloat)
+- [MDN: Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)

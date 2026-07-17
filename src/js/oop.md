@@ -3,151 +3,157 @@ title: 面向对象编程思想、封装、多态
 category: javascript
 ---
 
-面向对象编程（Object-oriented programming）是一种将需求抽象成一个对象，针对这个对象分析其特征（属性）和动作（方法）。它有三大特点：继承、封装、多态。可提高程序的`重用性`、`灵活性`和`可拓展性`。实现高内聚，低耦合的目标。
+## 一句话结论
 
-## 构造函数
+面向对象编程是把数据和行为组织到对象、类或构造函数中，通过封装、继承和多态管理复杂业务。JavaScript 的 OOP 建立在原型机制上，`class` 是更清晰的语法层封装。
 
-所谓"构造函数"，其实就是一个普通函数，但是内部使用了`this`变量。对构造函数使用`new`运算符，就能生成实例，并且`this`变量会绑定在实例对象上。
+## 为什么需要它
 
-## 封装
+当业务对象有稳定状态和行为时，把它们封装到对象模型里，比散落的函数和变量更容易维护。
 
-### ES5
+- 场景：组件实例、游戏角色、图形对象、领域模型、SDK 客户端。
+- 不处理会怎样：状态和行为分散，调用顺序靠约定，复用和扩展成本升高。
 
-闭包加 prototype 实现
+## 核心概念
+
+| 概念 | 含义 | JavaScript 表达 |
+| ---- | ---- | ---- |
+| 封装 | 把数据和行为放在同一抽象内，隐藏内部细节 | 构造函数、`class`、闭包私有变量 |
+| 继承 | 子类型复用父类型能力 | 原型链、`extends` |
+| 多态 | 同一接口在不同对象上有不同实现 | 方法重写、鸭子类型 |
+| 静态成员 | 属于类本身，不属于实例 | `static` |
+| 实例成员 | 属于每个实例 | `this.name` |
+
+## 原理
+
+JavaScript 没有传统基于类的底层模型，对象继承依赖原型链。ES6 `class` 让写法更接近其他语言，但方法仍然定义在原型上。
 
 ```js
-var Car = (function () {
-  // 静态私有，只创建一次
-  var num = 100;
-  function check() {}
-  // 构造函数
-  function _car(name, price) {
-    //对象安全模式
-    if (!(this instanceof _book)) return new _car(name, price);
+class Car {
+  constructor(name) {
     this.name = name;
-    this.price = price;
-    // ...
   }
-  // prototype 对象
-  _car.prototype = {
-    description: "vehicle",
-    display: function () {
-      return "dispay ";
-    },
-  };
-  return _car;
-})();
+
+  run() {
+    return `${this.name} running`;
+  }
+}
+
+const car = new Car("Tesla");
+
+console.log(car.run()); // 'Tesla running'
+console.log(Object.getPrototypeOf(car) === Car.prototype); // true
 ```
+
+## 实现
+
+### ES5 构造函数与原型
+
+```js
+function Car(name, price) {
+  if (!(this instanceof Car)) {
+    return new Car(name, price);
+  }
+
+  this.name = name;
+  this.price = price;
+}
+
+Car.prototype.run = function run() {
+  return `${this.name} running`;
+};
+
+const car = new Car("Model 3", 200000);
+
+console.log(car.run());
+```
+
+原笔记中的「对象安全模式」思路是正确的，但要注意判断应使用当前构造函数本身，而不是其他变量名。
 
 ### ES6 class
 
 ```js
-class Car {
-  constructor(name, price) {
-    //实例属性
+class Vehicle {
+  constructor(name) {
     this.name = name;
-    this.price = price;
   }
-  //静态方法，只能通过类调用，子类只能通过super调用
-  static check() {
-    return "yes";
-  }
-  //实例方法
+
   run() {
-    return "running";
+    return `${this.name} running`;
   }
-  // 取值函数
-  get prop() {
-    return "getter";
-  }
-  // 存值函数
-  set prop(value) {
-    return "setter:" + value;
+
+  static isVehicle(value) {
+    return value instanceof Vehicle;
   }
 }
-// 静态属性
-Car.tool = "plant";
+
+class Bus extends Vehicle {
+  constructor(name, seats) {
+    super(name);
+    this.seats = seats;
+  }
+
+  run() {
+    return `${this.name} carries ${this.seats} passengers`;
+  }
+}
+
+const bus = new Bus("City Bus", 40);
+
+console.log(bus.run()); // 'City Bus carries 40 passengers'
+console.log(Vehicle.isVehicle(bus)); // true
 ```
 
-### 继承
+`Bus#run` 重写了父类方法，这就是多态的一种体现：同样调用 `run()`，不同对象可以给出不同结果。
 
-### 多态
+### 私有字段
 
-### 参考
+```js
+class Counter {
+  #count = 0;
 
-- [阮一峰](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_encapsulation.html)
-- [阮一峰——非构造函数的继承](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html)
-- [阮一峰——构造函数的继承](http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance.html)
+  increment() {
+    this.#count += 1;
+    return this.#count;
+  }
+}
 
-## 拓展阅读
+const counter = new Counter();
 
-### 面向对象编程中的一些概念
+console.log(counter.increment()); // 1
+```
 
-`继承`、`封装`、`多态`、`动态绑定`、`消息传递` 、`静态绑定`、`方法`
+`#count` 是语言级私有字段，类外部不能直接访问。
 
-1. 封装（encapsulation)
+## 边界与常见坑
 
-   第一层意思：将数据（属性）和操作（方法）捆绑在一起【关联性】，创造出一个新的类型的过程
+- **`class` 不是新的继承模型**：它仍然基于原型。
+- **继承层级不要太深**：深继承会让行为来源难追踪。
+- **构造函数忘记 `new` 会出错**：`class` 会直接抛错，普通构造函数可能污染全局。
+- **实例方法写在构造函数里会重复创建**：共享方法优先放在原型或类方法中。
+- **多态不等于大量 `if`**：让对象自己实现同名方法，调用方只依赖接口。
 
-   第二层意思：将接口与实现分离的过程。
+## 工程取舍
 
-   最基本的目标：使得软件结构的相关部件实现“[高内聚](https://baike.baidu.com/item/%E9%AB%98%E5%86%85%E8%81%9A/5296411)、低耦合”的“最佳状态”
+- 适合：对象有明确生命周期、状态和行为；需要表达领域模型。
+- 谨慎：只有纯数据转换时使用类，可能比函数更重。
+- 应换方案：组合优先于继承；工具逻辑用普通函数；状态流复杂时考虑状态机或框架约定。
 
-2. 继承
+## 面试 / 自测
 
-   类之间的关系；
+1. JavaScript 的 `class` 和原型是什么关系？
+2. 封装、继承、多态分别解决什么问题？
+3. 为什么不建议把实例方法写在构造函数内部？
+4. `static` 方法和实例方法有什么区别？
+5. 为什么说组合通常比深继承更稳？
 
-   在这种关系中，一个类共享了一个或多个其他类定义的结构和行为。
+## 相关文章
 
-   继承描述了类之间的关系。
+- [原型链](./prototype.md)
+- [new](./new.md)
+- [this](./this.md)
 
-   子类可以对基类的行为进行扩展、覆盖、重定义。
+## 参考
 
-3. 多态
-
-   类型理论中的一个概念，一个名称可以表示很多不同类的对象，这些类和一个共同超类有关。
-
-   因此，这个名称表示的任何对象可以以不同的方式响应一些共同的操作集合。
-
-4. 动态绑定（实例属性、实例方法）
-
-   也称动态类型，指的是一个对象或者表达式的类型直到运行时才确定。
-
-   通常由编译器插入特殊代码来实现。与之对立的是静态类型。
-
-5. 静态绑定（静态属性、静态方法）
-
-   也称静态类型，指的是一个对象或者表达式的类型在编译时确定。
-
-6. 消息传递
-
-   指的是一个对象调用了另一个对象的方法（或者称为成员函数）。
-
-7. 方法
-
-   也称为成员函数，是指对象上的操作，作为类声明的一部分来定义。
-
-   方法定义了可以对一个对象执行那些操作。
-
-### 面向过程编程（函数式编程）？
-
-### 面向切面编程?
-
-## 实操
-
-### 五子棋游戏
-
-- 流程
-  1. 开始游戏
-  2. 黑子（白子）先走
-  3. 绘制 canvas
-  4. 判断输赢
-  5. 轮到白子（黑子）
-  6. 绘制 canvas
-  7. 判断输赢
-  8. 重复 2-7 步
-  9. 游戏结束了
-- 定义类
-  1. 玩家对象（负责接受用户输入）
-  2. 棋盘对象（棋子变化绘制）
-  3. 规则对象（判断输赢）
+- [MDN: Classes](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Classes)
+- [MDN: Inheritance and the prototype chain](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
