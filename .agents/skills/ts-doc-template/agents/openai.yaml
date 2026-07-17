@@ -1,0 +1,4 @@
+interface:
+  display_name: "TS Doc Template"
+  short_description: "Write TypeScript docs for this VuePress site."
+  default_prompt: "Use $ts-doc-template to create or improve a TypeScript documentation page."
