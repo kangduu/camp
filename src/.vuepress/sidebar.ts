@@ -6,10 +6,13 @@ const js = [
   "/js/precompile.md",
   "/js/async.md",
   "/js/currying.md",
+  "/js/higher-order-function.md",
+  "/js/lazy-function.md",
   "/js/memory.leak.md",
   "/js/deep.clone.md",
   "/js/prototype.md",
   "/js/debounce.throttle.md",
+  "/js/time.chunk.md",
   "/js/running.md",
   "/js/event.loop.md",
   "/js/module.md",
@@ -20,11 +23,31 @@ const js = [
   "/js/parseInt.parseFloat.md",
   "/js/reg-exp.md",
   "/js/es6.md",
+  "/js/array.md",
   "/js/deweight.array.md",
   "/js/questions.md",
 ];
 
-const ts = ["/ts/cmd.md", "/ts/infer.md", "/ts/satisfies-as.md"];
+const ts = [
+  "/ts/",
+  "/ts/introduction.md",
+  "/ts/cmd.md",
+  "/ts/tsconfig.md",
+  "/ts/type-basics.md",
+  "/ts/type-inference-compatibility.md",
+  "/ts/type-narrowing.md",
+  "/ts/interfaces.md",
+  "/ts/functions.md",
+  "/ts/classes.md",
+  "/ts/generics.md",
+  "/ts/infer.md",
+  "/ts/utility-types.md",
+  "/ts/advanced-types.md",
+  "/ts/satisfies-as.md",
+  "/ts/modules-namespaces.md",
+  "/ts/decorators.md",
+  "/ts/ecosystem.md",
+];
 
 const performance = [
   "/performance/开篇.md",
