@@ -3,7 +3,7 @@ home: true
 icon: tabler:home-filled
 title: Home
 heroImage: /assets/coding.gif
-heroImageDark: /assets/home.gif
+heroImageDark: /assets/coding.gif
 # layout: BlogHome
 # bgImage: /assets/coding.gif
 # heroText: "" # 主标题

@@ -2,8 +2,11 @@ import { viteBundler } from "@vuepress/bundler-vite";
 import { defineUserConfig } from "vuepress";
 import theme from "./theme.js";
 
+const base = "/camp/";
+
 export default defineUserConfig({
-  base: "/camp/",
+  base,
+  head: [["link", { rel: "icon", href: `${base}favicon.ico` }]],
   lang: "zh-CN",
   title: "杜同学日记",
   description: "路漫漫其修远兮，吾将上下而求索",
