@@ -1,0 +1,4 @@
+interface:
+  display_name: "Node.js Doc Template"
+  short_description: "Write Node.js docs for this VuePress site."
+  default_prompt: "Use $nodejs-doc-template to create or improve a Node.js documentation page."

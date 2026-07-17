@@ -12,15 +12,15 @@ heroImageDark: /assets/coding.gif
 # heroFullScreen: true
 
 actions:
-  - text: 待办事项
-    link: /todo/
-    icon: solar:checklist-bold
-    type: primary
+  # - text: 待办事项
+  #   link: /todo/
+  #   icon: solar:checklist-bold
+  #   type: primary
 
-  - text: 我的收藏
-    icon: solar:stars-bold
-    link: /favorites/
-    type: primary
+  # - text: 我的收藏
+  #   icon: solar:stars-bold
+  #   link: /favorites/
+  #   type: primary
 
   # - text: 关于我们
   #   icon: solar:stars-bold
@@ -90,11 +90,14 @@ features:
 
 footer: 路漫漫其修远兮，吾将上下而求索
 ---
+---
 
 ### :smile:Link Up ~ ~ ~
 
 1. [Developer Roadmaps](https://roadmap.sh/)
 2. [React TypeScript Cheatsheets](https://react-typescript-cheatsheet.netlify.app/)
+
+---
 
 ### 本站所使用的资源
 
@@ -102,6 +105,8 @@ footer: 路漫漫其修远兮，吾将上下而求索
 - [vuepress-theme-hope](https://theme-hope.vuejs.press/)
 - [Iconify](https://icon-sets.iconify.design/)
 - [FontAwesome](https://fontawesome.com/)
+
+---
 
 ### :warning:特别说明
 

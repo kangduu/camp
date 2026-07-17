@@ -8,8 +8,8 @@ export default defineUserConfig({
   base,
   head: [["link", { rel: "icon", href: `${base}favicon.ico` }]],
   lang: "zh-CN",
-  title: "杜同学日记",
-  description: "路漫漫其修远兮，吾将上下而求索",
+  title: "Frontend Developer",
+  // description: "路漫漫其修远兮，吾将上下而求索",
   bundler: viteBundler({
     viteOptions: {
       resolve: {
