@@ -1,77 +1,128 @@
 ---
 title: 正则表达式
+category: javascript
 ---
 
-## 运算优先级
+## 一句话结论
 
-`从左到右，从高到低`
+正则表达式是一种用模式匹配字符串的工具，适合做格式校验、文本提取、替换和简单解析。写正则时要同时关注匹配范围、边界、分组、贪婪程度和可维护性。
 
-## 常用正则表达式
+## 为什么需要它
 
-1. **[0,1)** 的数字 `/^[0](\.\d+)?$/.test(value)`
+前端经常需要处理用户输入和文本数据，例如校验表单、提取 URL 参数、格式化模板字符串、替换敏感词。
 
-2. 正整数 `/^[1-9]\d*$/.test(value)`
+- 场景：校验手机号/邮箱/金额；从日志中提取字段；按规则替换字符串。
+- 不处理会怎样：手写字符串遍历容易遗漏边界，复杂规则分散在多处难维护。
 
-3. ~~整数 `/^(-?[1-9]*)$/.test(value) 和 /^-?0{1}$/.test(value)` 【正整数、负整数、正负 0】~~
+## 核心概念
 
-4. 大于 0 的自然数 `/^[0](\.\d+)$/.test(value) 和 /^[1-9]\d*(\.\d+)?$/.test(value)`
+| 概念 | 含义 | 示例 |
+| ---- | ---- | ---- |
+| 字符类 | 匹配一类字符 | `\d`、`\w`、`[a-z]` |
+| 量词 | 控制出现次数 | `*`、`+`、`?`、`{1,3}` |
+| 边界 | 限定位置而非字符 | `^`、`$`、`\b` |
+| 分组 | 把一段模式作为整体 | `(abc)` |
+| 捕获引用 | 引用前面捕获的内容 | `\1` |
+| 修饰符 | 改变匹配模式 | `g`、`i`、`m`、`u` |
 
-## QA
+## 原理
 
-### 正则表达式出现的 `\1`代表什么意思？
+正则引擎会从字符串中尝试匹配模式。多数 JavaScript 正则是回溯型匹配：当某条路径失败时，引擎会回退到之前的选择点尝试其他路径。复杂正则如果写得不谨慎，可能产生性能问题。
 
-> 正则表达式中的小括号`()`代表分组的意思。如果在其后面出现`\1`则是代表**与小括号中要匹配的内容相同**。
->
-> **注意**：`\1` 必须与小括号配合使用
+常见优先级从高到低大致是：转义字符、括号分组、量词、连接、或运算。
 
-示例
+```js
+console.log(/^a|bc$/.test("ax")); // true
+console.log(/^(a|bc)$/.test("ax")); // false
+```
 
-1. ` /([yMdhsm])\1*/g` 时间格式判断
+括号能明确表达作用范围，避免读者误解。
 
-   首先`()`中[yMdhsm] 字符集合，匹配`yMdhsm`的任意一个字符；其后面出现`\1` ，且存在`*` 匹配前面的子表达式`零次或多次` ,则是代表继续匹配相同的字符；所以，最终**连续相同的字符**匹配。
+## 实现
 
-2. 判断一个字符串中出现次数最多的字符，并统计次数 ` /(\w)\1*/g`
+### 常用校验
 
-   ` /(\w)\1*/g` 解析同【1】
+```js
+const rules = {
+  positiveInteger: /^[1-9]\d*$/,
+  zeroToOne: /^0(\.\d+)?$/,
+  positiveNumber: /^(0\.\d+|[1-9]\d*(\.\d+)?)$/,
+};
 
-   ```js
-   function maxChart(str) {
-     let charts = str.split("").sort().join("");
-     let common = charts.match(/(\w)\1*/g);
-     let maxStr = "",
-       len = 0;
-     common.forEach((val) => {
-       if (val.length > len) {
-         maxStr = val;
-         len = String(val).length;
-       }
-     });
-     return maxStr + ":" + len;
-   }
-   // 1. 长度为 1 的情况
-   // 2. 最大长度多个相同的
-   // 3. 参数非法
-   ```
+console.log(rules.positiveInteger.test("12")); // true
+console.log(rules.zeroToOne.test("0.5")); // true
+console.log(rules.positiveNumber.test("10.5")); // true
+```
 
-3. 返回字符串最长重复字符字串
+正则只能判断格式，不负责业务语义。例如金额精度、最大值、地区号码段，通常还需要额外逻辑配合。
 
-   ```js
-   function maxChart(str) {
-     let common = str.match(/(\w)\1*/g);
-     let maxStr = "",
-       len = 0;
-     common.forEach((val) => {
-       if (val.length > len) {
-         maxStr = val;
-         len = String(val).length;
-       }
-     });
-     return maxStr + ":" + len;
-   }
-   ```
+### 捕获和反向引用
 
-### 参考
+`\1` 表示第一个捕获分组匹配到的内容，常用于查找连续重复字符。
 
-[菜鸟教程](https://www.runoob.com/regexp/regexp-tutorial.html)
+```js
+const pattern = /(\w)\1*/g;
 
-[匹配规则](https://www.runoob.com/regexp/regexp-rule.html)
+console.log("aaabbc".match(pattern)); // ['aaa', 'bb', 'c']
+```
+
+找出连续出现最长的字符片段：
+
+```js
+function findLongestRun(str) {
+  const runs = str.match(/(\w)\1*/g) || [];
+
+  return runs.reduce(
+    (max, item) => (item.length > max.length ? item : max),
+    ""
+  );
+}
+
+console.log(findLongestRun("abbcccdd")); // 'ccc'
+```
+
+如果要找「全字符串中出现次数最多的字符」，应先统计频次，而不是依赖连续匹配。
+
+```js
+function findMostFrequentChar(str) {
+  const countMap = new Map();
+
+  for (const char of str) {
+    countMap.set(char, (countMap.get(char) || 0) + 1);
+  }
+
+  return [...countMap.entries()].sort((a, b) => b[1] - a[1])[0] || null;
+}
+```
+
+## 边界与常见坑
+
+- **`g` 修饰符会让 `test()` 记住 `lastIndex`**：复用同一个全局正则时，连续 `test()` 可能得到交替结果。
+- **`.` 默认不匹配换行**：需要跨行可用 `s` 修饰符或 `[\s\S]`。
+- **贪婪匹配可能吃太多**：`.*` 会尽量多匹配，需要时用 `.*?`。
+- **不要用复杂正则解析完整 HTML 或 JSON**：应使用解析器。
+- **用户输入拼进正则要转义**：否则特殊字符会改变模式含义。
+
+## 工程取舍
+
+- 适合：局部格式校验、简单提取、稳定文本替换。
+- 谨慎：长正则、业务规则频繁变化、需要详细错误提示的表单校验。
+- 应换方案：复杂语法用解析器；大型表单校验用 schema 校验库；需要国际化号码/邮箱校验时使用成熟库。
+
+## 面试 / 自测
+
+1. `\1` 在正则中是什么意思？
+2. `^a|bc$` 和 `^(a|bc)$` 的区别是什么？
+3. 为什么带 `g` 的正则连续调用 `test()` 可能不稳定？
+4. 贪婪匹配和非贪婪匹配如何写？
+5. 什么时候不应该继续加复杂正则，而应换解析器？
+
+## 相关文章
+
+- [数组方法](./array.md)
+- [parseInt / parseFloat](./parseInt.parseFloat.md)
+
+## 参考
+
+- [MDN: Regular expressions](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_expressions)
+- [MDN: RegExp](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)

@@ -3,160 +3,133 @@ title: 预编译原理
 category: javascript
 ---
 
-## JavaScript 运行三部曲 （脚本执行 js 引擎都做了什么呢？）
+## 一句话结论
 
-1. 语法分析（通篇扫描检查是否存在低级语法错误）
-2. 预编译（简单理解就是在内存中开辟一些空间，存放一些变量与函数）
-3. 提升问题（发生预编译时产生，确实是 js 运行中存在的原理，但是不能实质性解决预编译问题）
+常说的「预编译」主要是在解释变量提升、函数提升和执行上下文创建：代码执行前，引擎会建立作用域环境，为声明分配绑定，再按执行顺序赋值。准确理解它能避免把「声明提升」误解成「代码真的被搬到顶部」。
 
-- - 函数声明整体提升
+## 为什么需要它
 
-  - 变量声明提升（变量初始化不算，只存在声明变量这一步：var a;）
+面试和调试中经常遇到变量在声明前访问、函数声明覆盖变量、形参与函数声明同名等问题。
 
-  - `优先级：函数 > 变量声明`
+- 场景：分析输出题；理解 `var`、函数声明、作用域链；排查隐式全局变量。
+- 不处理会怎样：把提升理解成简单文本移动，遇到形参、函数声明和块级作用域时推理错误。
 
-4. 解释执行
+## 核心概念
 
-## 预编译前奏
+| 概念 | 含义 | 备注 |
+| ---- | ---- | ---- |
+| 执行上下文 | 代码执行所需的环境记录 | 全局、函数、模块 |
+| 变量环境 | 保存 `var` 和函数声明等绑定 | 教学中常称 GO/AO |
+| 词法环境 | 保存 `let` / `const` / 块级声明 | 存在暂时性死区 |
+| 变量提升 | 声明在执行前建立绑定 | `var` 初始为 `undefined` |
+| 函数提升 | 函数声明在执行前可用 | 优先级高于同名 `var` |
+| 隐式全局 | 未声明直接赋值 | 严格模式会报错 |
 
-1. 暗示全局变量(imply global)
+## 原理
 
-   即任何变量未经声明就赋值，此变量就为全局对象（global object）所有
+执行一段脚本大致经历：解析、创建执行上下文、执行代码。创建上下文时，引擎会先处理声明，再进入逐行执行。
 
-```javascript
-function test() {
-  var a = (b = 123);
-  console.log(a); //123
+```js
+console.log(a); // undefined
+var a = 1;
+
+foo(); // 'foo'
+function foo() {
+  console.log("foo");
 }
-test();
-console.log(b); //123
-console.log(a); // throw error 'a is not defined '
 ```
 
-2. 一切声明的全局变量，全是 window 的属性。
+这不是代码被文本移动，而是 `a` 和 `foo` 的绑定在执行前已经建立。`var a` 的值先是 `undefined`，执行到赋值语句时才变成 `1`。
 
-```javascript
-function test() {
-  var b = 123; //b是局部变量
+## 实现
+
+### 全局上下文推理
+
+```js
+var a = 1;
+function b() {
+  return "b";
 }
-test();
-console.log(window.b); //undefined
-```
-
-`注意`：预编译阶段(脚本代码块 script 执行前) 发生变量声明和函数声明，没有初始化行为（赋值），匿名函数不参与预编译 ，只有在解释执行阶段才会进行变量初始化
-
-`运行期上下文`：当函数执行时（前一刻），会创建一个称为执行期上下文的内部对象（AO 等）。一个执行期上下文定义了一个函数执行时的环境，函数每次执行时对应的执行期上下文都是独一无二的，所以多次调用一个函数会导致创建多个执行期上下文，当函数执行完毕，它所产生的执行期上下文被销毁。
-
-`查找变量`：从作用域链的顶部依次向下查找。
-
-## JS 预编译实例
-
-```javascript
-var a = 1; // 创建变量（变量声明+为变量赋值）
-function b(y) {
-  //函数声明
-  var x = 1;
-  console.log("so easy");
-}
-var c = function () {};
-b(100);
-```
-
-> 让我们看看引擎对这段代码做了什么吧
->
-> 1.  页面产生便创建了 GO 全局对象（window）
-> 2.  第一个脚本文件加载
-> 3.  脚本加载完毕后，分析语法是否合法
-> 4.  开始预编译
->
-> - 查找函数声明，作为 GO 属性，值赋予函数体
-> - 查找变量声明，作为 GO 属性，值赋予 undefined（执行代码时进行初始化）
-
-### 全局的预编译
-
-```javascript
-//伪代码
-GO
-window = {
-    //页面加载创建GO同时，创建了document、navigator、screen等等属性，此处省略
-    a: undefined,
-    c: undefined，
-    b: function(y){
-        var x = 1;
-        console.log('so easy');
-    }
-}
-//解释执行代码（直到执行函数b）
-//GO
-  window = {
-    //变量随着执行流得到初始化
-    a: 1,
-    c: function(){
-       //...
-    },
-    b: function(y){
-        var x = 1;
-        console.log('so easy');
-    }
-}
-//执行函数b之前，发生预编译
-```
-
-### 函数执行前的预编译
-
-```javascript
-//伪代码
-AO = {
-  //创建AO同时，创建了arguments等等属性，此处省略
-  y: 100,
-  x: undefined,
+var c = function () {
+  return "c";
 };
-// 解释执行函数中代码
-// 第一个脚本文件执行完毕，加载第二个脚本文件
-// 第二个脚本文件加载完毕后，进行语法分析
-// 语法分析完毕，开始预编译
-// 重复最开始的预编译步骤……
 ```
 
-## 总结
+执行前可以近似理解为：
 
-预编译(函数执行前) ※ （AO）
+```js
+// 教学模型，不是引擎真实对象结构
+const globalEnvironment = {
+  a: undefined,
+  b: function b() {
+    return "b";
+  },
+  c: undefined,
+};
+```
 
-1. 创建 AO（Argument Object）对象（执行期上下文，即一个函数执行库。 eg： AO{... }）
-2. 查找函数形参及函数内 变量声明，将形参名及变量名作为 AO 对象的属性名，值为 undefined
-3. 实参形参相统一，（实参值赋给形参 ）
-4. 查找函数声明，函数名作为 AO 对象的属性，值为函数体（值 或函数引用）
+执行后：
 
-`注：变量和函数同名AO中只能有一个；执行函数时AO对象也会接着改变（即AO在函数执行完才失效）`
+```js
+globalEnvironment.a = 1;
+globalEnvironment.c = function () {
+  return "c";
+};
+```
 
-### 代码示例
+### 函数上下文推理
 
-```javascript
-function test(a, b) {
-  document.write(a);
-  /注意执行当前语句时，a还为1，执行到 a = 3 时a才为3/;
-  c = 0;
-  var c;
-  a = 3;
-  b = 2;
-  document.write(b);
-  function b() {}
-  function d() {}
-  document.write(d);
-  document.write(c);
+```js
+function test(a) {
+  console.log(a);
+  var a = 2;
+  function a() {}
+  console.log(a);
 }
+
 test(1);
-//    1
-//    2
-//    function d() {}
-//    0
-/*    AO = {
-        a = 3;
-        b = 2;
-        c = 0;
-        d = function () {};
-    }*/
-//预编译(脚本代码块script执行前) （GO）
-// 1. 查找全局变量声明（包括隐式全局变量声明，省略var的声明），变量名作全局对象的属性，值为undefined
-// 2. 查找函数声明，函数名作为全局对象的属性，值为函数引用
 ```
+
+简化过程：
+
+1. 创建函数执行上下文。
+2. 建立形参 `a`，值为 `1`。
+3. 处理 `var a`，因为已有同名绑定，不覆盖值。
+4. 处理函数声明 `function a() {}`，覆盖为函数。
+5. 执行第一行输出函数。
+6. 执行 `a = 2`。
+7. 第二次输出 `2`。
+
+## 边界与常见坑
+
+- **`let` / `const` 也会建立绑定，但有暂时性死区**：声明前访问会报错，不是 `undefined`。
+- **函数表达式不会整体提升**：`var fn = function () {}` 只有变量 `fn` 被提升。
+- **隐式全局在严格模式下会报错**：不要依赖 `b = 123` 创建全局变量。
+- **模块顶层不是浏览器全局对象属性**：ES Module 顶层声明不会挂到 `window`。
+- **GO/AO 是教学模型**：真实规范使用 Environment Record 等概念，不要把模型当作实际对象。
+
+## 工程取舍
+
+- 适合：理解输出题、旧代码中的 `var` 和函数声明行为。
+- 谨慎：在业务代码中依赖提升，会降低可读性。
+- 应换方案：现代代码优先使用 `const` / `let`，声明靠近使用位置，开启严格模式和 lint 规则。
+
+## 面试 / 自测
+
+1. `var` 声明和函数声明的提升有什么区别？
+2. 为什么函数表达式不能在赋值前调用？
+3. `let` / `const` 的暂时性死区是什么？
+4. 未声明变量直接赋值在严格模式下会怎样？
+5. GO/AO 模型和规范真实机制有什么关系？
+
+## 相关文章
+
+- [执行机制](./running.md)
+- [Event Loop](./event.loop.md)
+- [this](./this.md)
+
+## 参考
+
+- [MDN: Hoisting](https://developer.mozilla.org/zh-CN/docs/Glossary/Hoisting)
+- [MDN: var](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/var)
+- [ECMAScript: Execution Contexts](https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html)

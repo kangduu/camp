@@ -1,106 +1,149 @@
 ---
-title: 类型断言 satisfies 和 as
-index: false
+title: satisfies 和 as
+category: typescript
 ---
 
-## 开门见山
+## 一句话结论
 
-我们还是先看结论，再细说一二。
+`as` 是类型断言，用来告诉编译器「把这个值当成某类型」；`satisfies` 是类型校验，用来确认表达式符合某类型，同时保留表达式自身的精确推导。配置对象、路由表、字面量映射优先考虑 `satisfies`。
 
-| 特性     | as                                        | satisfies                                          |
-| -------- | ----------------------------------------- | -------------------------------------------------- |
-| 作用     | 类型**断言**，**强制转换**类型            | 类型**验证**，确保对象**符合**指定类型的结构       |
-| 类型检查 | ❌ **不会进行**类型检查，**忽略**类型错误 | ✅ **会进行**类型检查，**确保对象符合**类型要求    |
-| 行为     | 可能导致**类型不匹配**的**运行时错误**    | 如果不匹配，**TypeScript 会报错**，而不是忽略      |
-| 使用场景 | 当你**知道数据的确切类型**时，强制断言    | **确保对象符合特定类型**的结构，增加**类型安全性** |
+## 为什么需要它
 
-## as 类型断言
+- 场景：校验配置对象结构；保留字面量 key 和 value 的精确类型；处理来自 DOM 或第三方库的宽泛类型。
+- 不处理会怎样：滥用 `as` 会隐藏类型错误，运行时仍可能因为字段缺失或类型不匹配而报错。
 
-`as` 是传统的类型断言操作符，允许你将一个值明确地断言为某种类型。使用 `as` 后，TypeScript 会假定你已经知道这个值的类型，而不进行任何检查。这意味着 TypeScript 会接受你给出的类型，而不验证该类型是否符合实际数据。
+## JS 对照
 
-### 用法
+| JavaScript | TypeScript | 关键差异 |
+| ---- | ---- | ---- |
+| 无类型断言 | `value as string` | 只影响编译器，不做运行时转换 |
+| 无结构校验语法 | `config satisfies Config` | 编译期校验结构，保留原始推导 |
+| `if (value)` | `value!.name` | 非空断言跳过检查，不做运行时保护 |
+
+`as`、`satisfies` 和 `!` 都不会生成运行时类型检查代码。
+
+## 核心概念
+
+| 语法 | 作用 | 风险 |
+| ---- | ---- | ---- |
+| `as Type` | 类型断言 | 可能掩盖真实类型不匹配 |
+| `as unknown as Type` | 双重断言 | 风险更高，只应作为边界逃生舱 |
+| `satisfies Type` | 结构校验 | TypeScript 4.9+ |
+| `value!` | 非空断言 | 运行时仍可能是 `null` / `undefined` |
+
+## 类型推导 / 类型约束
 
 ```ts
-let greeting: unknown = "Hello, world!";
-let getLength: number = greeting.length;
+type Route = {
+  path: string;
+  auth?: boolean;
+};
+
+const routes = {
+  home: { path: "/" },
+  admin: { path: "/admin", auth: true },
+} satisfies Record<string, Route>;
+
+type RouteName = keyof typeof routes;
+// type RouteName = "home" | "admin"
 ```
 
-> 运行上述代码，将会得到报错 `error TS2339: Property 'length' does not exist on type 'unknown'.`
+`satisfies` 校验 `routes` 符合 `Record<string, Route>`，但不会把 `routes` 直接拓宽成 `Record<string, Route>`，所以仍能拿到精确 key。
+
+## 实现
+
+### as：确认但不校验
 
 ```ts
-let greeting: unknown = "Hello, world!";
-let getLength: number = (greeting as string).length; // 强制断言 greeting 为 string
+const value: unknown = "hello";
+const length = (value as string).length;
 ```
 
-> 在这个例子中，我们告诉 TypeScript，将 greeting 视为 `string` 类型，即使它的原始类型是 `unknown` 。但如果 greeting 的值不是字符串类型，TypeScript 依然不会报错。
-
-### 特点
-
-1. 类型断言：`as` 强制 TypeScript 认为一个值是某个类型，忽略类型检查。
-2. 不进行验证：`as` 并不验证这个类型是否符合实际数据类型。如果类型不匹配，可能会导致运行时错误。
-
-## satisfies 类型断言
-
-`satisfies` 是 `TypeScript 4.9` 引入的新特性，主要用于**确保一个对象符合某个特定的类型结构**，但**不会改变该对象的类型**。这意味着，使用 `satisfies` 后，TypeScript 会验证对象是否符合指定类型的约束，但它不会像 as 那样强制改变对象的类型。
-
-### 用法
+当你确实知道 `value` 是字符串时可以使用 `as`。如果值来自外部输入，更稳妥的做法是先类型收窄。
 
 ```ts
-interface Food {
+function getLength(value: unknown): number {
+  if (typeof value === "string") {
+    return value.length;
+  }
+
+  return 0;
+}
+```
+
+### satisfies：校验且保留推导
+
+```ts
+type Food = {
   name: string;
   description?: {
     price: number;
     weight: number;
-    yield?: string;
   };
-}
+};
 
-let food = {} satisfies Food;
+const food = {
+  name: "tomato",
+  description: {
+    price: 5,
+    weight: 100,
+  },
+} satisfies Food;
 ```
 
-> 运行上述代码，将会得到报错 `error TS1360: Type '{}' does not satisfy the expected type 'Food'. Property 'name' is missing in type '{}' but required in type 'Food'.`
+如果缺少 `name`，或 `price` 写成字符串，TypeScript 会在声明处报错。
 
-> 在这个例子中，`satisfies` 用于验证 food 是否符合 `Food` 类型。如果 food 中有任何不符合 Food 类型的字段，TypeScript 会给出错误提示。
-
-- 正确做法
+### 对比：类型标注、as、satisfies
 
 ```ts
-let food = { name: "tomato" } satisfies Food;
+type Colors = "red" | "green" | "blue";
+type RGB = [number, number, number];
+type Palette = Record<Colors, string | RGB>;
+
+const paletteByAnnotation: Palette = {
+  red: [255, 0, 0],
+  green: "#00ff00",
+  blue: [0, 0, 255],
+};
+
+const paletteBySatisfies = {
+  red: [255, 0, 0],
+  green: "#00ff00",
+  blue: [0, 0, 255],
+} satisfies Palette;
 ```
 
-### 特点
+`paletteByAnnotation.green` 会被视为 `string | RGB`；`paletteBySatisfies.green` 能保留为更精确的字符串值相关类型，使用体验通常更好。
 
-1. 类型验证：`satisfie`s 用于确保对象符合指定的类型，但不会改变对象的类型。
-2. 避免类型改变：与 `as` 不同，`satisfies` 保证对象的实际类型不会被强制更改。如果类型不匹配，它会报告错误，而不是强制转换。
+## 边界与常见坑
 
-## 示例对比
+- **`as` 不是类型转换**：`value as number` 不会把字符串转成数字。
+- **双重断言要谨慎**：`as unknown as T` 基本是在绕过类型系统。
+- **非空断言不做运行时保护**：`node!.textContent` 在 `node` 为 `null` 时仍会崩。
+- **`satisfies` 需要 TypeScript 4.9+**：旧工具链可能解析失败。
+- **`satisfies` 不是运行时 schema 校验**：外部 JSON 仍需运行时校验库。
 
-### as 示例
+## 工程取舍
 
-```ts
-const num: unknown = 42;
-const strLength: number = (num as string).length; // 强制断言 num 为 string，但实际上它是 number，会报错
-```
+- 适合：配置对象、常量映射、路由表、主题 token 等需要校验又要保留字面量推导的场景。
+- 谨慎：DOM 查询、接口返回值等运行时不确定数据，不能只靠断言。
+- 不适合或应换方案：外部输入校验用 Zod、Valibot、JSON Schema 等运行时方案。
 
-### satisfies 示例
+## 面试 / 自测
 
-```ts
-interface Food {
-  name: string;
-  description?: {
-    price: number;
-    weight: number;
-    yield?: string;
-  };
-}
+1. `as` 和 `satisfies` 的核心区别是什么？
+2. 为什么 `satisfies` 更适合配置对象？
+3. `as string` 会把运行时值转成字符串吗？
+4. 非空断言有什么风险？
+5. `satisfies` 从哪个 TypeScript 版本开始可用？
 
-let food = { name: "tomato" } satisfies Food; // 如果 food 中缺少某些字段，TypeScript 会报错
-```
+## 相关文章
 
-## 总结
+- [类型收窄](./type-narrowing.md)
+- [类型基础](./type-basics.md)
+- [infer 推断](./infer.md)
 
-- `as`：类型断言，告诉 TypeScript 忽略类型检查，直接将某个值视为指定类型。它不会验证数据是否符合该类型，使用时需要谨慎。
+## 参考
 
-- `satisfies`：类型验证，确保对象符合某个类型的结构，但不会改变对象的类型。它提供更严格的类型检查，通常用于配置文件和接口类型验证。
-
-- 在选择使用时：如果你希望确保对象符合某个类型的结构而不改变其类型，使用 `satisfies`；如果你确定类型并希望绕过类型检查，使用 `as`
+- [TypeScript 4.9 Release Notes: satisfies](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html)
+- [TypeScript Handbook: Everyday Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)

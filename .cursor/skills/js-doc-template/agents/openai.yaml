@@ -1,0 +1,5 @@
+interface:
+  display_name: "JS Docs Template"
+  short_description: "Write project JavaScript docs with VuePress conventions."
+  default_prompt: "Use $js-doc-template to refactor this JavaScript note into the project's VuePress documentation structure."
+

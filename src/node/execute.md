@@ -1,149 +1,105 @@
 ---
 title: Node.js 文件执行
+category: nodejs
 ---
 
-🤔❓ [如何确认一个 Node.js 文件使用的是`ESM`还是`CommonJS`模块](#确定Node文件模块类型)
+## 一句话结论
 
-## 使用 node 执行 `.js` `.cjs` `.mjs` 文件
+Node.js 执行文件时先判断模块格式，再交给对应加载器运行。`.js` 会受最近的 `package.json` `type` 字段影响，`.cjs` 永远按 CommonJS，`.mjs` 永远按 ES Module。
 
-1. 默认情况 `.js` 文件
+## 为什么需要它
 
-```js
-// hello.js
-console.log("Hello Node.js");
+- 场景：本地运行脚本、发布 CLI、迁移 ESM、执行 TypeScript 文件。
+- 不处理会怎样：`import`、`require`、`__dirname`、`import.meta.url` 混用后容易出现语法错误或运行时错误。
+
+## 运行时边界
+
+| 文件 | Node.js 行为 | 备注 |
+| ---- | ---- | ---- |
+| `.js` | 跟随最近 `package.json` 的 `type` | 默认 CommonJS |
+| `.cjs` | CommonJS | 不受 `type` 影响 |
+| `.mjs` | ES Module | 不受 `type` 影响 |
+| `.ts` | 取决于 Node 版本和运行方式 | 项目中通常用 `tsx`、`ts-node` 或先 `tsc` |
+
+Node.js 的模块判断是运行时加载规则，不是 TypeScript 类型系统规则。
+
+## 核心概念
+
+| 概念 | 含义 | 备注 |
+| ---- | ---- | ---- |
+| CommonJS | `require` / `module.exports` | 历史包生态广泛使用 |
+| ES Module | `import` / `export` | 标准模块系统 |
+| `type` | `package.json` 的模块类型声明 | 影响 `.js` |
+| 入口文件 | 传给 `node` 命令的文件 | 如 `node src/index.js` |
+
+## 实现
+
+### 执行 JavaScript 文件
+
+```bash
+node index.js
+node index.cjs
+node index.mjs
 ```
 
-```sh
-node hello.js
+当项目没有 `package.json`，或最近的 `package.json` 没有 `"type": "module"` 时，`.js` 默认按 CommonJS 处理。
+
+```json
+{
+  "type": "module"
+}
 ```
 
-查找 最近的 `package.json` 中的 type 值，只要 type 值不为 'module',那么就是`CommonJS模`
+设置后，同一目录树下的 `.js` 会按 ES Module 处理，除非文件扩展名是 `.cjs`。
 
-2. `.cjs` `.mjs`
+### 执行 TypeScript 文件
 
-直接遵循对应模块规则执行。
+生产构建更推荐先编译：
 
-```sh
-node hello.cjs | node hello.mjs
+```bash
+npx tsc -p tsconfig.json
+node dist/index.js
 ```
 
----
+本地脚本可用运行器：
 
-## 如何执行 `.ts` `.cts` `.mts` 文件
-
-我们知道一个 Node.js 文件可以是`ESM`模块，也可以是`CommonJS`模块。那么在使用`tsc`、`tsx`或`ts-node`进行编译或执行时，也存在各种差异：
-
-### 1. 使用 `tsc` 编译后执行对应的 js 文件
-
-```ts
-// index.ts
-console.log("Running TypeScript in Node.js.");
+```bash
+npx tsx scripts/build.ts
 ```
 
-```sh
-tsc index.ts && node index.js
+`tsx` 适合开发和脚本执行，但默认不等同于完整类型检查。CI 仍应单独运行：
+
+```bash
+npx tsc --noEmit
 ```
 
-如果我们加上 `--noEmit` flags，那么将只检测 ts 语法。
+## 边界与常见坑
 
-### 2. 使用 `tsx` 直接运行 ts 文件
+- **`__dirname` 只在 CommonJS 中直接存在**：ESM 中用 `import.meta.url` 配合 `fileURLToPath`。
+- **`require` 不能直接加载 ESM**：优先使用动态 `import()` 或迁移调用方。
+- **`type` 只影响 `.js`**：`.cjs` 和 `.mjs` 是强制扩展名。
+- **执行 TS 不等于类型检查**：运行器为了速度可能跳过类型检查。
 
-```cts
-let num = 1;
-console.log(num); // 1
-```
+## 工程取舍
 
-```cts
-let num = 1;
-num = ""; // error TS2322: Type 'string' is not assignable to type 'number'.
-console.log(num); // 没有输出日志，process直接退出了
-```
+- 适合：`.cjs` / `.mjs` 明确跨模块边界，避免歧义。
+- 谨慎：在同一个包里混用两套模块系统。
+- 不适合或应换方案：生产环境直接依赖临时 TS 运行器，应优先构建后运行。
 
-**_ 不进行类型检查，但执行到类型错误行会退出 _**
+## 面试 / 自测
 
-### 3. 使用 `ts-node` 直接运行 ts 文件
+1. `.js` 如何判断是 CJS 还是 ESM？
+2. `.cjs` 和 `.mjs` 是否受 `package.json` `type` 影响？
+3. 为什么 `tsx` 运行通过不代表类型检查通过？
 
-仅`.cts`可成功，且`package.json`是`CommonJS`模块
+## 相关文章
 
-```cts
-let a = "hello";
-console.log(a);
-```
+- [Node.js 入门](./introduction.md)
+- [模块系统](./modules.md)
+- [npm](./npm.md)
 
-执行 `.ts` 之前必须配置 `tsconfig.json` 文件，否则执行会报错
+## 参考
 
-```ts
-let greeting = "hello";
-console.log(greeting);
-// export default greeting;
-module.exports = { greeting };
-```
-
-执行 `.mts` 失败，`TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".mts"`
-
----
-
-## 确定 Node 文件模块类型
-
-👍 在 Node.js 中，确定一个文件是 **ESM（ECMAScript Module）** 还是 **CJS（CommonJS）**，主要有以下几种方式：
-
----
-
-### 1. **看 `package.json` 的 `type` 字段**
-
-- 如果最近的 `package.json` 中有：
-
-  ```json
-  {
-    "type": "module"
-  }
-  ```
-
-  那么 **`.js` 文件会被当作 ESM**，除非扩展名是 `.cjs`（强制 CommonJS）。
-
-- 如果没有定义 `type`，或者值是 `"commonjs"`，那么 **`.js` 文件会被当作 CJS**，除非扩展名是 `.mjs`（强制 ESM）。
-
-✅ 规则：
-
-- `.js` → 跟随 `type` 配置
-- `.cjs` → 永远是 CJS
-- `.mjs` → 永远是 ESM
-
----
-
-### 2. **看文件扩展名**
-
-- `.cjs` → CommonJS
-- `.mjs` → ES Module
-- `.js` → 依赖 `package.json` 的 `type` 字段来判断
-
----
-
-### 3. **看文件内容**
-
-Node.js 会报错提示你用错了语法：
-
-- **CJS 文件**里不能直接用 `import` / `export`，否则会报错。
-- **ESM 文件**里不能直接用 `require`、`module.exports`，否则会报错。
-
----
-
-### 4. **运行时确认 ⭐**
-
-你可以在文件里加一句：
-
-```js
-console.log(import.meta.url); // 仅 ESM 可用
-console.log(typeof require); // 在 CJS 中是 "function"，在 ESM 中会报错
-```
-
----
-
-### 📌 总结一张速查表：
-
-| 情况                                            | `.js` | `.cjs` | `.mjs` |
-| ----------------------------------------------- | ----- | ------ | ------ |
-| `package.json` `"type": "commonjs"` 或无 `type` | CJS   | CJS    | ESM    |
-| `package.json` `"type": "module"`               | ESM   | CJS    | ESM    |
-
----
+- [Node.js Docs: Modules](https://nodejs.org/api/modules.html)
+- [Node.js Docs: ECMAScript modules](https://nodejs.org/api/esm.html)
+- [TypeScript Docs: tsc CLI](https://www.typescriptlang.org/docs/handbook/compiler-options.html)

@@ -3,235 +3,200 @@ title: 节流和防抖
 category: javascript
 ---
 
-### 什么是防抖和节流？有什么区别？
+## 一句话结论
 
-你在实际开发中肯定写过这样的业务需求，随着滚动条滚动判断滚动距离，实现导航栏固定在顶部、为页面不同业务模块添加滚动到可视区域显示动画等需求。这个时候我们的业务逻辑代码在每一次滚动事件触发时便会执行一次，而滚动事件属于高频事件，触发后则可能导致浏览器卡死，必须对其进行防抖或节流处理进而控制执行次数。
+防抖是「连续触发后只执行最后一次」，节流是「持续触发时按固定频率执行」。它们都用来控制高频事件，减少无意义计算、请求和渲染。
 
-常见的需要防抖或节流预处理的事件有：
+## 为什么需要它
 
-📢 鼠标事件，onmousedown 和 onmousemove，连续点击和移动
+滚动、输入、窗口缩放、鼠标移动等事件触发频率很高。如果每次触发都执行重逻辑，页面会卡顿，也可能发出大量重复请求。
 
-📢 输入事件，onkeyup 和 onkeydown
+- 场景：搜索框输入联想、窗口 resize 计算布局、滚动加载、按钮防重复提交。
+- 不处理会怎样：请求风暴、重复提交、频繁布局计算、滚动掉帧。
 
-📢window，resize 和 scroll
+## 核心概念
 
-##### 防抖（debounce）
+| 概念 | 含义 | 适合场景 |
+| ---- | ---- | ---- |
+| 防抖 debounce | 停止触发一段时间后再执行 | 输入搜索、表单自动保存 |
+| 立即防抖 | 第一次触发立即执行，等待期内忽略 | 防重复点击 |
+| 节流 throttle | 固定时间窗口最多执行一次 | 滚动、resize、鼠标移动 |
+| leading | 是否在开始时执行 | 节流/防抖常见选项 |
+| trailing | 是否在结束时补执行 | 保留最后一次状态 |
+| cancel | 取消等待中的执行 | 组件卸载时清理 |
 
-`触发高频事件后，n秒内事件再次触发，则重新开始计时，直到n秒内只触发了一次，则执行函数`。我们用乘坐电梯来打个比方（不考虑电梯超载），当电梯门要关闭时，突然又有人需要乘坐电梯，此时电梯并没有改变楼层，而是再次打开了电梯门。这样电梯延迟了改变楼层的功能，同时也优化了资源（一次）。
+## 原理
 
-##### 节流（throttle）
-
-`触发高频事件后，n秒内事件多次触发只执行一次。` 这就好比'水滴效应'💧 水积攒到一定重量才会下落。
-
-##### 二者区别
-
-防抖和节流的区别主要体现在处理函数**执行次数的不同**。
-
-👣 防抖将多次执行变为**最后执行一次** ，`归一`；
-
-👣 节流将多次执行变成**每隔一段时间执行一次** ，`稀释`；
-
-### 防抖实现
-
-⚪**青铜**
+防抖通过清理并重设计时器，把连续触发合并成一次执行。
 
 ```js
 function debounce(fn, wait) {
-  let timer = null; // 维护一个timer
-  return function () {
-    // 通过`this`和`arguments`缓存函数的作用域和参数
-    let context = this;
-    let args = arguments;
-    clearTimeout(timer); //清除最后一次点击之前触发的事件
-    timer = setTimeout(function () {
-      fn.apply(context, args);
+  let timer = null;
+
+  return function debounced(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(this, args);
     }, wait);
   };
 }
-
-// 注意 fn无返回值（默认undefined）
 ```
 
-🔘**白银**
-
-添加 immediate 参数，**控制触发后是否立即执行**。
+节流通过时间戳或定时器，限制函数在一段时间内最多执行一次。
 
 ```js
-function debounce(fn, wait = 800, immediate = true) {
-  let timer;
-  return function () {
-    let context = this;
-    let args = arguments;
-+   timer && clearTimeout(timer);
-+   if (immediate) {
-+     // 首次触发，timer默认为假值。
-+     // 若连续触发，则timer为setTimeout返回的最新的ID值[Number]，则runNow为false。
-+     let runNow = !timer;
-+     // 指定时间wait过后才将定时器清除
-+     timer = setTimeout(function () {
-+       timer = null;
-+     }, wait);
-+     if (runNow) fn.apply(context, args)
-    } else {
-      timer = setTimeout(function () {
-        fn.apply(context, args);
-      }, wait);
-    }
-  }
-};
-// 注意 fn无返回值（默认undefined）
-```
-
-⚫**黄金**
-
-**为事件处理函数 fn 添加返回值**。目前要返回值的话，只能在 immediate 为 true 时返回。因为 else 语句中为异步代码执行，所以返回的都是 undefined。
-
-```js
-function debounce(fn, wait = 800, immediate = true) {
-  let timer;
-  return function () {
-    let context = this, args = arguments;
-    timer && clearTimeout(timer);
-    if (immediate) {
-      // 首次触发，timer默认为假值。
-      // 若连续触发，则timer为setTimeout返回的最新的ID值[Number]，则runNow为false。
-      let runNow = !timer;
-      // 指定时间wait过后才将定时器清楚
-      timer = setTimeout(function () {
-        timer = null;
-      }, wait);
-+     if (runNow) return fn.apply(context, args)
-    }
-    else {
-      timer = setTimeout(function () {
-        return fn.apply(context, args);
-      }, wait);
-    }
-  }
-};
-```
-
-🔵**铂金**
-
-实现在**等待执行的过程中取消延迟并立即执行函数 fn**
-
-```js
-function debounce(fn, wait = 800, immediate = true) {
-+ let timer, debounced;
-+ debounced = function () {
-    let context = this, args = arguments;
-    timer && clearTimeout(timer);
-    if (immediate) {
-      // 首次触发，timer默认为假值。
-      // 若连续触发，则timer为setTimeout返回的最新的ID值[Number]，则runNow为false。
-      let runNow = !timer;
-      // 指定时间wait过后才将定时器清楚
-      timer = setTimeout(function () {
-        timer = null;
-      }, wait);
-      if (runNow) return fn.apply(context, args)
-    }
-    else {
-      timer = setTimeout(function () {
-        return fn.apply(context, args);
-      }, wait);
-    }
-  }
-+ debounced.cancel = () => {
-+   clearTimeout(timer)
-+   timer = null
-+ }
-+ return debounced
-};
-```
-
-### 节流实现
-
-🔘**白银（时间戳）**
-
-```js
-//指定时间内触发，时间一到就会触发（不管你执行了多少次）
-//思路：定义一个上次的时间，时间触发获取当前时间，满足【当前时间-上次时间>延迟时间】则触发，然后更新上次时间previous。
-function throttle(func, delay) {
+function throttle(fn, wait) {
   let previous = 0;
-  return function () {
-    let now = new Date();
-    if (now - previous > delay) {
-      func.apply(this, arguments);
+
+  return function throttled(...args) {
+    const now = Date.now();
+
+    if (now - previous >= wait) {
+      previous = now;
+      fn.apply(this, args);
+    }
+  };
+}
+```
+
+## 实现
+
+### 工程版 debounce
+
+```js
+function debounce(fn, wait = 300, options = {}) {
+  const { leading = false, trailing = true } = options;
+  let timer = null;
+  let lastArgs = null;
+  let lastThis = null;
+
+  function invoke() {
+    const args = lastArgs;
+    const context = lastThis;
+
+    lastArgs = null;
+    lastThis = null;
+    fn.apply(context, args);
+  }
+
+  function debounced(...args) {
+    lastArgs = args;
+    lastThis = this;
+
+    const shouldCallNow = leading && !timer;
+
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+
+      if (trailing && !shouldCallNow) {
+        invoke();
+      }
+    }, wait);
+
+    if (shouldCallNow) {
+      invoke();
+    }
+  }
+
+  debounced.cancel = function cancel() {
+    clearTimeout(timer);
+    timer = null;
+    lastArgs = null;
+    lastThis = null;
+  };
+
+  return debounced;
+}
+```
+
+### 工程版 throttle
+
+```js
+function throttle(fn, wait = 300, options = {}) {
+  const { leading = true, trailing = true } = options;
+  let timer = null;
+  let previous = 0;
+  let lastArgs = null;
+  let lastThis = null;
+
+  function invoke(time) {
+    previous = time;
+    timer = null;
+    fn.apply(lastThis, lastArgs);
+    lastArgs = null;
+    lastThis = null;
+  }
+
+  function throttled(...args) {
+    const now = Date.now();
+
+    if (!previous && !leading) {
       previous = now;
     }
-  };
-}
-```
 
-🔘**白银（定时器）**
+    const remaining = wait - (now - previous);
+    lastArgs = args;
+    lastThis = this;
 
-```js
-// 思路：事件触发时，设置一个定时器，定时器未执行前再次触发事件则不执行；定时器执行，则执行函数，然后清空定时器，再设置下一个定时器。
-function throttle(fn, delay) {
-  let timer;
-  return function () {
-    let context = this,
-      args = arguments;
-    if (!timer) {
-      timer = setTimeout(() => {
-        timer = null;
-        fn.apply(context, args);
-      }, delay);
-    }
-  };
-}
-```
-
-⚫**黄金**
-
-合二为一（有头有尾）；有头——触发时便执行一次，第一次间隔到了再执行一次；有尾——停止触发，会更根据计算条件再执行一次
-
-```js
-// 第一次触发即执行，然后每隔一段时间执行，最后停止再时间间隔结束时执行一次
-function throttle(fn, delay) {
-  let timer,
-    context,
-    args,
-    // 记录上次触发的时间
-    previous = 0;
-  return function () {
-    let now = +new Date(),
-      //下次触发fn剩余的时间
-      remaining = delay - (now - previous);
-    context = this;
-    args = arguments;
-    // 无剩余时间，或系统时间改变(人为)
-    if (remaining <= 0 || remaining > delay) {
-      // 首次触发会立即执行本部分
+    if (remaining <= 0 || remaining > wait) {
       if (timer) {
         clearTimeout(timer);
         timer = null;
       }
-      previous = now;
-      fn.apply(context, args);
-    } else if (!timer) {
-      // 设置定时器
+
+      invoke(now);
+    } else if (!timer && trailing) {
       timer = setTimeout(() => {
-        fn.apply(context, args);
-        previous = +new Date();
-        timer = null;
+        invoke(leading ? Date.now() : 0);
       }, remaining);
     }
+  }
+
+  throttled.cancel = function cancel() {
+    clearTimeout(timer);
+    timer = null;
+    previous = 0;
+    lastArgs = null;
+    lastThis = null;
   };
+
+  return throttled;
 }
-// 正常一次连续触发的执行应该是： 一次if，然后每次都是else if（最后一次也是），
 ```
 
-### underscore 中防抖和节流源码解析
+两个工程版都保留了 `this`、参数和取消能力。返回值在 trailing 异步执行时无法同步返回，调用方不要依赖它。
 
-### 总结
+## 边界与常见坑
 
-防抖和节流主要是满足性能优化需求实现，避免意外错误。
+- **防抖适合等用户停下来**：输入搜索常用防抖。
+- **节流适合持续反馈**：滚动进度、拖拽位置常用节流。
+- **组件卸载要 cancel**：否则等待中的回调可能访问已销毁状态。
+- **返回值不稳定**：延迟执行的回调无法同步返回结果。
+- **不要在 render 中重复创建包装函数**：会导致取消失效和监听解绑失败。
 
-##### 🔗**参考**
+## 工程取舍
 
-- [节流](https://github.com/mqyqingfeng/Blog/issues/26)
-- [防抖](https://github.com/mqyqingfeng/Blog/issues/22)
-- [underscore](https://underscorejs.net/)
-- [Debounce vs Throttle: Definitive Visual Guide](https://kettanaito.com/blog/debounce-vs-throttle)
+- 适合：高频事件、重复点击、输入联想、滚动和 resize。
+- 谨慎：需要每一次事件都不能丢失的场景，例如精确轨迹记录。
+- 应换方案：动画用 `requestAnimationFrame`；大量任务拆分用 [分时函数](./time.chunk.md)；成熟项目可直接使用 lodash 的实现。
+
+## 面试 / 自测
+
+1. 防抖和节流的区别是什么？
+2. 搜索框输入联想应该用哪一个？
+3. 滚动进度计算应该用哪一个？
+4. 为什么防抖/节流要保留 `this` 和参数？
+5. 为什么需要 `cancel`？
+
+## 相关文章
+
+- [分时函数](./time.chunk.md)
+- [高阶函数](./higher-order-function.md)
+- [执行机制](./running.md)
+
+## 参考
+
+- [MDN: setTimeout](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/setTimeout)
+- [Lodash: debounce](https://lodash.com/docs/#debounce)
+- [Lodash: throttle](https://lodash.com/docs/#throttle)

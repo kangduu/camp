@@ -2,148 +2,144 @@
 title: Event Loop
 category: javascript
 ---
-## 浏览器环境下JavaScript引擎的事件循环机制
 
-开始学习事件循环之前，让我们先看看下面几个问题。
+## 一句话结论
 
-- JavaScript 为什么是单线程的？
-- JavaScript 为什么需要异步？
-- JavaScript 单线程又是如何实现异步的？
+Event Loop 是 JavaScript 协调同步代码、异步回调、微任务、宏任务和渲染的调度机制。判断输出顺序时，先执行当前同步代码，再清空微任务队列，然后进入下一轮任务。
 
-### JavaScript 为什么是单线程的❓
+## 为什么需要它
 
-单线程的意思简单理解就是“同一时间只能做一件事”，而JavaScript设计之初就是用在浏览器的脚本语言，这就与JavaScript的用途有着密不可分的关系。
+JavaScript 主线程一次只能执行一段代码，但浏览器又要处理定时器、网络、用户事件和渲染。事件循环让这些任务按规则排队执行。
 
-作为浏览器脚本语言，JavaScript主要用于用户交互、DOM操作，这就要求我们不能同时去修改同一个DOM元素的内容或样式。假如现在有两个线程，A线程修改DOM的文本颜色为红色，B线程修改DOM的文本颜色为蓝色，那么浏览器应该选择渲染红色还是蓝色啦？所以，JavaScript只能是单线程的。
+- 场景：分析 Promise 和 setTimeout 输出顺序；理解页面卡顿；安排渲染后的任务。
+- 不处理会怎样：误判异步执行顺序，错误使用定时器或 Promise，甚至制造微任务死循环。
 
-##### 拓展阅读
+## 核心概念
 
-📣Web Worker 允许JavaScript脚本创建多个线程
+| 概念 | 含义 | 示例 |
+| ---- | ---- | ---- |
+| 调用栈 | 当前正在执行的同步代码 | 函数调用栈 |
+| 任务 | 一次事件循环取出的宏任务 | script、setTimeout、用户事件 |
+| 微任务 | 当前任务结束后立即清空的队列 | Promise.then、queueMicrotask |
+| 渲染机会 | 浏览器在合适时机更新页面 | 通常发生在任务之间 |
+| 阻塞 | 长同步任务占用主线程 | 死循环、大计算 |
 
-为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
+## 原理
 
-📣浏览器无响应？（假死）
+浏览器环境中，一轮典型事件循环可以简化为：
 
-常见的浏览器无响应（假死），往往就是因为某一段 JavaScript 代码长时间运行（比如死循环），导致整个页面卡在这个地方，其他任务无法执行。
+1. 执行一个任务中的同步代码。
+2. 清空微任务队列。
+3. 浏览器按需执行渲染。
+4. 取下一个任务继续。
 
-JavaScript 语言本身并不慢，慢的是读写外部数据，比如等待 Ajax 请求返回结果。这个时候，如果对方服务器迟迟没有响应，或者网络不通畅，就会导致脚本的长时间停滞。
+```js
+console.log("script start");
 
-### JavaScript 为什么需要异步❓
+setTimeout(() => {
+  console.log("setTimeout");
+}, 0);
 
-前面我们已经明白了JavaScript为什么是单线程的，但是单线程存在的问题就是“当前任务执行时，后面的任务必须等待当前任务执行结束”。这样自上而下执行的特点，当某一行执行时间太长，将会出现代码阻塞的情况，呈现给用户的结果就是“卡死”的效果。
+Promise.resolve().then(() => {
+  console.log("promise");
+});
 
-所以，在遇到一个异步事件，JavaScript引擎并不会一直等待异步事件返回结果，而是将这个事件挂载到与执行栈不同的任务队列。
+console.log("script end");
 
-### JavaScript 单线程又是如何实现异步的❓
+// script start
+// script end
+// promise
+// setTimeout
+```
 
-事件循环 Event Loop 。
+`Promise.then` 是微任务，`setTimeout` 回调是任务。当前 script 任务结束后，微任务会先执行。
 
-### 栈、堆和队列数据结构
+## 实现
 
-- 队列：先进先出。类似排队，总是按照先后顺序执行。
-- 栈：先进后出。类似杯子，先放进去的总是最后才能取出。这种结构适用于需要根据优先级执行的任务。
-- 堆：树状结构。类似图书馆书架，根据不同分类按照对应索引值取值。
-
-### 执行栈和任务队列
-
-##### 执行栈
-
-JavaScript代码执行的时候会将不同的变量存于内存中的堆（heap）和栈（stack）中来加以区分。其中，堆里存放着一些对象，而栈中则存放着一些基础类型变量以及对象的指针。 但是我们这里说的**执行栈**和上面这个**栈**的意义却有些不同。
-
-当我们调用一个方法的时候，JavaScript会生成一个与这个方法对应的执行环境（context），又叫**执行上下文**。这个执行环境中存着这个方法的<u>私有作用域</u>，<u>上层作用域的指向</u>，<u>方法的参数</u>，这个<u>作用域中定义的变量</u>以及这个<u>作用域的this对象</u>。 而当一系列方法被依次调用的时候，因为JavaScript是单线程的，同一时间只能执行一个方法，于是这些方法被排队在一个单独的地方。这个地方被称为执行栈。
-
-当一个脚本第一次执行的时候，JavaScript引擎会解析这段代码，并将其中的同步代码按照执行顺序加入执行栈中，然后从头开始执行。如果当前执行的是一个方法，那么JavaScript会向执行栈中添加这个方法的执行环境，然后进入这个执行环境继续执行其中的代码。当这个执行环境中的代码 执行完毕并返回结果后，JavaScript会退出这个执行环境并把这个执行环境销毁，回到上一个方法的执行环境。。这个过程反复进行，直到执行栈中的代码全部执行完毕。
-
-##### 任务队列
-
-"任务队列"是一个事件的队列（也可以理解成消息的队列），IO设备完成一项任务，就在"任务队列"中添加一个事件，表示相关的异步任务可以进入"执行栈"了。主线程读取"任务队列"，就是读取里面有哪些事件。
-
-"任务队列"中的事件，除了IO设备的事件以外，还包括一些用户产生的事件（比如鼠标点击、页面滚动等等）。只要指定过回调函数，这些事件发生时就会进入"任务队列"，等待主线程读取。
-
-"任务队列"是一个先进先出的数据结构，排在前面的事件，优先被主线程读取。主线程的读取过程基本上是自动的，只要执行栈一清空，"任务队列"上第一位的事件就自动进入主线程。但是，由于存在后文提到的"定时器"功能，主线程首先要检查一下执行时间，某些事件只有到了规定的时间，才能返回主线程。
-
-读取到一个异步任务，首先是将异步任务放进事件表格（Event table）中，当放进事件表格中的异步任务完成某种事情或者说达成某些条件（如setTimeout事件到了，鼠标点击了，数据文件获取到了）之后，才将这些异步任务推入事件队列（Event Queue)中，这时候的异步任务才是执行栈中空闲的时候才能读取到的异步任务。**一句话总结就是，异步任务进入Event table，当任务执行回调后，才进入事件队列，等待执行栈读取。**
-
-##### 任务队列本质
-
-👣所有同步任务都在主线程上执行，形成一个执行栈（execution context stack）。【只有一个执行栈】
-
-👣主线程之外，还存在一个”任务队列”（task queue）。只要异步任务有了运行结果，就在”任务队列”之中放置一个事件，排队等待执行栈读取执行。
-
-👣一旦”执行栈”中的所有同步任务执行完毕，系统就会读取”任务队列”，看看里面有哪些事件。那些对应的异步任务便**结束等待状态**，进入执行栈，开始执行。
-
-👣主线程不断重复上一步操作。
-
-### 宏任务和微任务
-
-##### 宏任务（浏览器）
-
-- 渲染事件：DOM解析、布局、绘制等
-- 用户交互事件：点击、输入、滚动、缩放等
-- script事件：js执行、网络请求、文件读取（i/o）、Ajax请求等
-- 定时器： `setTimeout`，`setInterval`
-
-##### 微任务（浏览器）
-
-- 使用MutationObserver监控某个DOM节点，然后通过JavaScript修改这个节点，当DOM节点发送变化时，就会产生DOM变化记录的微任务
-- 使用Promise，调用Promise.resolve()或Promise.reject()时也会产生微任务
-
-##### 区别
-
-1. 微任务和宏任务是绑定的，每个宏任务在执行时，会创建自己的微任务队列；
-2. 微任务的执行时长会影响当前宏任务的时长（多个微任务时长累加）；
-3. **在一个宏任务中，如果创建一个用于回调的宏任务和微任务，无论什么情况下，微任务都早于宏任务执行。【任务执行顺序】**
-
-### 事件循环机制流程
-
-![Event Loop](./asset/event.loop.png)
-
-1. 主线程执行JavaScript整体代码，形成一个执行栈，在遇到任务源时将其所指定的异步任务挂起，接受到响应结果后将异步任务放入对应的任务队列中，直到执行栈只剩全局上下文；
-2. 将微任务队列中的所有任务按优先级、单个任务的异步任务入栈并执行，直到清空所有的微任务队列；
-3. 将宏任务队列中的优先级最高的任务队列中的异步任务入栈并执行；
-4. 重复第 2 3 步骤，直到清空所有的宏任务队列和微任务队列，全局执行上下文出栈。
-
-❗**注意：任务源所指定的异步任务，并不是立即被放入任务队列中，而是在接收到响应结果后才会将其放入任务队列中排队。**
-
-例如：setTimeout指定延迟时间为1s，则在1s后才会将该任务源所指定的任务队列放入队列中。
-
-### 试题分析
-
-🌰下面的代码输出什么？为什么？并阐述其中的原理？
+### async/await 输出题
 
 ```js
 async function async1() {
-  console.log('async1 start');
+  console.log("async1 start");
   await async2();
-  console.log('async1 end');
+  console.log("async1 end");
 }
+
 async function async2() {
-  console.log('async2');
+  console.log("async2");
 }
-console.log('script start');
-setTimeout(function() {
-  console.log('setTimeout');
-}, 0)
+
+console.log("script start");
+
+setTimeout(() => {
+  console.log("setTimeout");
+}, 0);
+
 async1();
-new Promise(function(resolve) {
-  console.log('promise1');
-  resolve();
-}).then(function() {
-  console.log('promise2');
+
+Promise.resolve().then(() => {
+  console.log("promise");
 });
-console.log('script end');
+
+console.log("script end");
 ```
 
-### 总结
+输出顺序：
 
-##### 👀**关键字**
+```text
+script start
+async1 start
+async2
+script end
+async1 end
+promise
+setTimeout
+```
 
-进程、线程、同步、异步、阻塞、非阻塞、事件循环、栈、堆、队列、任务源、宏任务、微任务、执行上下文
+`await async2()` 之前同步执行，`await` 后面的代码会作为微任务继续执行。
 
-##### 🔗**参考**
+### 微任务饥饿
 
-- [进程与线程的一个简单解释](http://www.ruanyifeng.com/blog/2013/04/processes_and_threads.html)
-- [什么是 Event Loop  ？](http://www.ruanyifeng.com/blog/2013/10/event_loop.html)
-- [JavaScript 运行机制详解](http://www.ruanyifeng.com/blog/2014/10/event-loop.html)
-- [[浏览器之JS引擎工作机制&事件循环]](https://segmentfault.com/a/1190000022511727)
+```js
+function loop() {
+  queueMicrotask(loop);
+}
 
+// loop(); // 不要在业务中这样写
+```
+
+如果微任务不断追加新的微任务，浏览器可能长时间没有机会进入下一轮任务和渲染。
+
+## 边界与常见坑
+
+- **微任务不是越多越好**：微任务会在渲染前清空，过多会阻塞渲染。
+- **`setTimeout(fn, 0)` 不是立刻执行**：它要等当前任务和微任务完成后，进入后续任务。
+- **Node.js 事件循环和浏览器不同**：`process.nextTick`、I/O 阶段等是 Node 特有规则。
+- **长同步任务会阻塞所有异步回调**：定时器到点也只能等待调用栈清空。
+- **`requestAnimationFrame` 和渲染相关**：适合在下一帧更新动画，不等同于普通定时器。
+
+## 工程取舍
+
+- 适合：分析执行顺序、调度 UI 更新、拆分任务。
+- 谨慎：用微任务做大量递归调度，容易阻塞渲染。
+- 应换方案：长任务拆分用 [分时函数](./time.chunk.md)；CPU 密集计算用 [Web Worker](./web-worker.md)；动画用 `requestAnimationFrame`。
+
+## 面试 / 自测
+
+1. 宏任务和微任务的执行顺序是什么？
+2. `await` 后面的代码什么时候执行？
+3. 为什么 `setTimeout(fn, 0)` 不是立即执行？
+4. 微任务过多会造成什么问题？
+5. 浏览器和 Node.js 的事件循环是否完全一致？
+
+## 相关文章
+
+- [执行机制](./running.md)
+- [异步编程](./async.md)
+- [分时函数](./time.chunk.md)
+
+## 参考
+
+- [MDN: Event loop](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Event_loop)
+- [MDN: queueMicrotask](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/queueMicrotask)
+- [MDN: requestAnimationFrame](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame)

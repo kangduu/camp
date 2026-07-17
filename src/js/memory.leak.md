@@ -3,117 +3,152 @@ title: 内存泄漏
 category: javascript
 ---
 
-​ 内存泄漏指的是：**任何对象在你不再拥有或不再需要之后任然存在**。
+## 一句话结论
 
-- 不再拥有——（无法获取）
-- 不再需要——（还存在隐性引用）
+内存泄漏是指对象已经不再需要，却仍然被可达引用保留，导致垃圾回收器无法释放。前端最常见来源是未清理的定时器、事件监听、订阅、缓存和脱离 DOM 的引用。
 
-## 常见的内存泄漏
+## 为什么需要它
 
-1. 闭包
-2. 控制台日志
-3. 循环（两对象彼此引用且彼此保留）
-4. 事件监听，addEventListener 需要 removeEventListener 移除（**传递给两者的函数必须一致**）
-5. setTimeout/setInterval ，对应的使用 clearTimeout/clearInterval 清空
-6. **注意，使用 setTimeout 模拟 setInterval 循环调用会造成内存泄漏**
-7. 如 Promise、rxjs 的 Observables、node 的 EventEmitters 这些方法，无回调函数或未取消监听都会造成内存泄漏
-8. Promise 如果没有 resolved 或者 rejected，会连同 then()中的代码一起造成内存泄漏
-9. 在没有虚拟 dom 的计算下实现了无无限滚动，那么 dom 节点的数量将无限增加
-10. [IntersectionObserver](https://developer.mozilla.org/zh-CN/docs/Web/API/IntersectionObserver), [ResizeObserver](https://developer.mozilla.org/zh-CN/docs/Web/API/ResizeObserver), [MutationObserver](https://developer.mozilla.org/zh-CN/docs/Web/API/MutationObserver) 这些新的事件监听 Api，都必须使用对应的 disconnect 取消监听
-11. 同 redux、vuex 这样**挂载在全局的状态管理，如果不注意内存的占用，则会持续增加不会被释放**
+单页应用会长时间运行，页面切换不等于进程退出。如果组件卸载后仍保留回调、DOM 或大对象引用，内存会持续上涨，最终导致页面变慢甚至崩溃。
 
-## 容易引起内存使用不当的场景
+- 场景：路由切换、弹窗反复打开关闭、无限滚动、图表实例、全局事件监听。
+- 不处理会怎样：堆内存持续增长、旧页面逻辑继续执行、重复请求或重复响应事件。
 
-1. 滥用全局变量
-2. 缓存不限制（最大缓存数限制）
-3. 操作大文件（切片上传，流上传）
+## 核心概念
 
-## V8 引擎
+| 概念 | 含义 | 备注 |
+| ---- | ---- | ---- |
+| 可达性 | 从根对象仍能访问到某对象 | 可达对象不会被回收 |
+| GC Root | 垃圾回收起点 | 全局对象、当前调用栈等 |
+| 闭包引用 | 内部函数保留外层变量 | 合理使用不是泄漏，长期无用才是问题 |
+| 监听清理 | 移除事件、订阅、观察器 | 要使用同一个函数引用 |
+| 缓存上限 | 控制缓存容量和生命周期 | 避免无限增长 |
 
-### 内存何时回收
+## 原理
 
-```javascript
-while (内存快满了) {
-	if（全局变量） 不回收
-	if（局部变量 && 失去引用） 回收
+现代 JavaScript 引擎主要通过可达性判断对象是否可回收。只要某个对象能从全局对象、当前调用栈、定时器回调、事件监听等路径访问到，它就会被视为仍然需要。
+
+```js
+let cache = [];
+
+function addLargeData(data) {
+  cache.push(data);
 }
 ```
 
-### 名词解释
+如果 `cache` 没有上限且长期存在，历史数据会一直可达，无法被回收。
 
-新生代：新定义的变量
+## 实现
 
-老生代：旧的变量
+### 定时器清理
 
-### 内存大小
+```js
+function createPolling(fetchData) {
+  const timer = setInterval(fetchData, 5000);
 
-| 操作系统 | 大小 | 描述                            |
-| -------- | ---- | ------------------------------- |
-| X64      | 1.4G | 新生代（64MB）,老生代（1400MB） |
-| X32      | 0.7G | 新生代（16MB）,老生代（700MB）  |
+  return function stop() {
+    clearInterval(timer);
+  };
+}
 
-### 内存分配
+const stopPolling = createPolling(() => {
+  // fetch data
+});
 
-- 新生代的算法（25%检查-标记-复制-移除）
+stopPolling();
+```
 
-  > 所有新变量都先放入【新生代】；
-  >
-  > 当容量大于 25%，触发新生代的复制；
-  >
-  > 标记活的变量，并复制到另一端（始终只用了一半的空间）；
-  >
-  > 清空之前的一半；
+### 事件监听清理
 
-何时进入老生代？经过复制且大于 25%的。
+```js
+function mountResizeListener(handler) {
+  window.addEventListener("resize", handler);
 
-特性：牺牲空间获得时间；
+  return function unmount() {
+    window.removeEventListener("resize", handler);
+  };
+}
 
-- 老生代的算法(标记-删除-整理)
+const cleanup = mountResizeListener(() => {
+  console.log(window.innerWidth);
+});
 
-  > 标记死亡的变量（无引用）
-  >
-  > 删除这些变量
-  >
-  > 整理
+cleanup();
+```
 
-为什么整理？
+`removeEventListener` 必须传入和注册时相同的函数引用。直接传匿名函数无法正确解绑。
 
-删除的位置是不连续的，而当需要插入连续的数据（数组）时，可能导致无法插入的情况。
+### 观察器清理
 
-### 如何查看内存
+```js
+function observeElement(element, callback) {
+  const observer = new ResizeObserver(callback);
+  observer.observe(element);
 
-单位都是 byte
+  return function disconnect() {
+    observer.disconnect();
+  };
+}
+```
 
-- 浏览器：window.performance
+`IntersectionObserver`、`ResizeObserver`、`MutationObserver` 都应在不需要时调用 `disconnect()`。
 
-  ```json
-  Performance {
-    memory: {
-      usedJSHeapSize:  16100000,
-      // JS 对象（包括V8引擎内部对象）占用的内存，一定小于 totalJSHeapSize，否则可能出现内存泄漏
-      totalJSHeapSize: 35100000,
-      // 可使用的内存
-      jsHeapSizeLimit: 793000000
-      // 内存大小限制
+### 限制缓存
+
+```js
+function createLimitedCache(limit = 100) {
+  const map = new Map();
+
+  return {
+    set(key, value) {
+      if (map.has(key)) {
+        map.delete(key);
+      }
+
+      map.set(key, value);
+
+      if (map.size > limit) {
+        const oldestKey = map.keys().next().value;
+        map.delete(oldestKey);
+      }
     },
-  }
-  ```
+    get(key) {
+      return map.get(key);
+    },
+  };
+}
+```
 
-- Node：[process.memoryUsage()](http://nodejs.cn/api/process.html#process_process_memoryusage)
+## 边界与常见坑
 
-  ```json
-  {
-    "rss": 23371776,
-    "heapTotal": 9682944,
-    "heapUsed": 5536960,
-    "external": 8733 // Node的源码是C++编写的，Node下可拓展C++的一些内存，使用webpack打包时可用
-  }
-  ```
+- **闭包不等于泄漏**：闭包是语言能力，只有长期持有不再需要的大对象时才会成为问题。
+- **Promise 未决不一定泄漏，但可能保留回调链**：要关注长生命周期异步任务和取消能力。
+- **控制台引用会影响观察结果**：DevTools 中保存的对象可能暂时不被回收。
+- **全局状态会延长生命周期**：Redux/Vuex/全局单例中的数据需要主动淘汰。
+- **用 `setTimeout` 递归模拟轮询也要清理**：不能只关注 `setInterval`。
 
-## QA
+## 工程取舍
 
-1. 为什么 V8 内存这么小？
+- 适合：所有长生命周期应用都应建立清理意识。
+- 谨慎：为了避免泄漏过度清空共享缓存，可能损害性能。
+- 应换方案：大型资源用生命周期统一管理；订阅流用 `unsubscribe`；请求用 `AbortController`；对象弱引用场景可考虑 `WeakMap`。
 
-> JavaScript 垃圾回收时，会中断执行；每 100MB 大约 3ms。
->
-> JavaScript 设计之初是为了处理前端脚本，导致执行完便释放了。
+## 面试 / 自测
+
+1. 什么样的对象无法被垃圾回收？
+2. 为什么事件监听容易造成泄漏？
+3. `removeEventListener` 为什么要求同一个函数引用？
+4. 闭包一定会造成内存泄漏吗？
+5. 如何排查 SPA 页面切换后的内存泄漏？
+
+## 相关文章
+
+- [执行机制](./running.md)
+- [异步编程](./async.md)
+- [深拷贝和浅拷贝](./deep.clone.md)
+
+## 参考
+
+- [MDN: Memory management](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Memory_management)
+- [MDN: AbortController](https://developer.mozilla.org/zh-CN/docs/Web/API/AbortController)
+- [MDN: ResizeObserver](https://developer.mozilla.org/zh-CN/docs/Web/API/ResizeObserver)

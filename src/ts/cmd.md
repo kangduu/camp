@@ -1,91 +1,109 @@
 ---
-title: Running TypeScript
+title: 运行 TypeScript
+category: typescript
 ---
 
-### `tsc` 编译器
+## 一句话结论
 
-因为 TypeScript 是一种静态类型语言，编译后才会转化为 JavaScript 执行。因此，通常的步骤是将 TypeScript 文件编译为 JavaScript，然后运行生成的 JavaScript 文件。
+TypeScript 不能直接改变 JavaScript 的运行时，它需要先由 `tsc`、构建工具或运行器完成类型检查和转译。学习 TS 命令时要分清：类型检查、生成 JavaScript、直接执行 TS 文件是三件不同的事。
 
-那么我们是不是应该先执行 `tsc ***.ts` ，然后使用 node 来执行编译后的 js 文件`node ***.js`。
+## 为什么需要它
+
+- 场景：本地运行一个 `.ts` 脚本；在项目中检查类型错误；把 TS 编译成浏览器或 Node.js 能执行的 JS。
+- 不处理会怎样：把 `ts-node` 当生产构建工具，或以为类型检查通过就等于运行时不会出错。
+
+## JS 对照
+
+| JavaScript | TypeScript | 关键差异 |
+| ---- | ---- | ---- |
+| `node hello.js` | `tsc hello.ts && node hello.js` | TS 需要先生成 JS |
+| 无类型检查步骤 | `tsc --noEmit` | 只检查类型，不输出文件 |
+| 直接运行 JS | `tsx hello.ts` / `ts-node hello.ts` | 运行器负责即时转译 |
+
+TypeScript 的类型标注会被擦除，真正执行的仍然是 JavaScript。
+
+## 核心概念
+
+| 概念 | 含义 | 备注 |
+| ---- | ---- | ---- |
+| `tsc` | TypeScript 官方编译器 | 可检查类型并输出 JS |
+| `--noEmit` | 只检查类型，不生成文件 | CI 常用 |
+| `--watch` | 监听文件变化并增量检查 | 开发时常用 |
+| `ts-node` | Node.js 中直接运行 TS 的工具 | 更适合脚本和开发 |
+| `tsx` | 现代 TS/TSX 运行器 | 常用于脚本和 Node 项目 |
+| `tsconfig.json` | TypeScript 项目配置 | 控制输入文件和编译选项 |
+
+## 类型推导 / 类型约束
+
+命令行不会改变类型系统规则。`tsc` 会根据源文件、`tsconfig.json` 和依赖声明文件建立类型程序，然后报告类型错误。`noEmitOnError` 可以控制有类型错误时是否继续输出 JS。
+
+## 实现
+
+### 安装与检查
 
 ```bash
-tsc hello.ts
+npm install --save-dev typescript
+npx tsc --version
+```
 
+### 编译单文件
+
+```bash
+npx tsc hello.ts
 node hello.js
 ```
 
-但是我们在平时的测试中，希望直接执行 ts 代码，应该怎么做呐？
-
----
-
-### 使用 `ts-node`
-
-ts-node 是一个执行 TypeScript 文件的工具，它会自动编译 TypeScript 文件并执行：
-
-1. 安装 `ts-node`
+### 只做类型检查
 
 ```bash
-npm i ts-node
+npx tsc --noEmit
 ```
 
-2. 直接运行 ts 文件
+### 监听变化
 
 ```bash
-ts-node hello.ts
+npx tsc --watch --noEmit
 ```
 
-[ts-node](https://www.npmjs.com/package/ts-node)
-[How To Run TypeScript Scripts with ts-node](https://www.digitalocean.com/community/tutorials/typescript-running-typescript-ts-node)
-
-### 监听文件变化
-
-TypeScript 提供了两种方式来监听文件变化：`tsc --watch` 和 `tsc -w`
-
-#### 使用 `ts-node-dev`
-
-在 TypeScript 文件变化时快速重新加载
+### 直接运行 TS 脚本
 
 ```bash
-npm i ts-node-dev
-
-ts-node-dev --respawn hello.ts
+npm install --save-dev tsx
+npx tsx hello.ts
 ```
 
-`--respawn` 会确保每次文件变化后，都会重新启动程序，而不会缓存旧的状态。
+`ts-node` 也能执行 TS 文件，但不同项目的 ESM/CommonJS 配置会影响行为。新脚本优先考虑 `tsx`，已有项目按项目约定。
 
-[ts-node-dev](https://www.npmjs.com/package/ts-node-dev)
+## 边界与常见坑
 
-### 关于本地安装依赖执行报错的说明
+- **全局安装不是必须**：项目内安装并用 `npx` 或 npm scripts 更稳定。
+- **`ts-node` 不等于生产构建**：生产代码通常仍由 `tsc`、Vite、Webpack、tsup 等工具处理。
+- **类型检查不保证运行时安全**：外部输入仍需运行时校验。
+- **ESM/CommonJS 会影响执行器配置**：看 `package.json` 的 `type` 和 `tsconfig` 的 `module`。
+- **`tsc file.ts` 可能绕开项目配置**：项目中优先直接运行 `tsc -p tsconfig.json` 或 `tsc --noEmit`。
 
-**注意** 不使用全局安装 `-g` ，直接执行 `ts-node hello.ts` 会报错，解决办法如下：
+## 工程取舍
 
-1. 使用`npx`运行
+- 适合：`tsc --noEmit` 做 CI 类型检查，`tsx` 做本地脚本，构建工具做应用转译。
+- 谨慎：全局安装、多套运行器混用、忽略项目 `tsconfig`。
+- 不适合或应换方案：需要运行时类型安全时，使用 Zod、Valibot 等 schema 校验库配合 TypeScript。
 
-```bash
-npx ts-node hello.ts
-```
+## 面试 / 自测
 
-2. 使用`npm run`（这需要你在`package.json`中提前配置命令）
+1. `tsc --noEmit` 和 `tsc` 的区别是什么？
+2. 为什么说 TypeScript 类型会被擦除？
+3. `ts-node` / `tsx` 更适合什么场景？
+4. 为什么项目中不建议依赖全局 `typescript`？
+5. `tsc hello.ts` 和 `tsc -p tsconfig.json` 有什么差别？
 
-```json
-"scripts": {
-  "start": "ts-node hello.ts"
-}
-```
+## 相关文章
 
-3. 使用本地安装的 `ts-node` 直接执行 (路径查找`node_modules`下的`.bin`文件里的`ts-node`)
+- [tsconfig 配置](./tsconfig.md)
+- [类型基础](./type-basics.md)
 
-```bash
-./node_modules/.bin/ts-node hello.ts
-```
+## 参考
 
-#### 小结
-
-1. 如果你没有全局安装 `ts-node`，可以通过 `npx ts-node hello.ts` 来运行。
-2. 或者，你可以配置 `npm run` 脚本来运行 `ts-node`。
-3. 也可以直接访问本地的 `node_modules/.bin/` 目录来执行。
-
-### 总结
-
-- 执行 TypeScript 文件：通过 tsc 编译后运行 .js 文件，或者使用 ts-node 来直接执行。
-- 监听文件变化：使用 `tsc --watch` 或 `ts-node-dev` 来监听文件变化并自动执行编译和运行。
+- [TypeScript Handbook: The TypeScript CLI](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
+- [TSConfig Reference](https://www.typescriptlang.org/tsconfig/)
+- [ts-node](https://www.npmjs.com/package/ts-node)
+- [tsx](https://www.npmjs.com/package/tsx)
